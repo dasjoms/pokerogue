@@ -16,6 +16,12 @@ describe("rogue-env serialization", () => {
     expect(state.playerParty[0]).toHaveProperty("status");
     expect(state.playerParty[0]).toHaveProperty("items");
     expect(Array.isArray(state.playerParty[0].items)).toBe(true);
+    expect(state).toHaveProperty("weather");
+    expect(state).toHaveProperty("terrain");
+    expect(state).toHaveProperty("playerActive");
+    expect(state).toHaveProperty("enemyActive");
+    expect(Array.isArray(state.playerActive)).toBe(true);
+    expect(Array.isArray(state.enemyActive)).toBe(true);
 
     env.step(RogueAction.FIGHT_1);
     const nextState = env.getState();
