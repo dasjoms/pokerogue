@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
 import { Command } from "#enums/command";
+import { CommandPhase } from "#app/phases/command-phase";
 import { randomString } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
 import type TransitionLogger from "#app/transition-logger";
@@ -122,9 +123,41 @@ export default class RogueEnv {
   }
 
   /**
+   * Determine which {@link RogueAction | actions} are currently valid.
+   */
+  getAvailableActions(): RogueAction[] {
+    const phase = this.scene.phaseManager.getCurrentPhase();
+    const actions: RogueAction[] = [];
+    if (phase instanceof CommandPhase) {
+      const pokemon = phase.getPokemon();
+      const moves = pokemon.getMoveset();
+      for (let i = 0; i < Math.min(4, moves.length); i++) {
+        if (pokemon.trySelectMove(i)) {
+          actions.push(RogueAction.FIGHT_1 + i);
+        }
+      }
+      if (!pokemon.isTrapped()) {
+        actions.push(RogueAction.RUN);
+        const party = this.scene.getPlayerParty();
+        for (let i = 0; i < Math.min(3, party.length); i++) {
+          const p = party[i];
+          if (p.hp > 0 && !p.isActive(true)) {
+            actions.push((RogueAction.SWITCH_1 + i) as RogueAction);
+          }
+        }
+      }
+    }
+    return actions;
+  }
+
+  /**
    * Return a lightweight snapshot of the current battle state.
    */
-  getState(): SerializedState {
-    return serializeState(this.scene);
+  getState(): SerializedState & { availableActions: RogueAction[] } {
+    const state = serializeState(this.scene) as SerializedState & {
+      availableActions: RogueAction[];
+    };
+    state.availableActions = this.getAvailableActions();
+    return state;
   }
 }
