@@ -1,8 +1,9 @@
 import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
-import { LoadingScene } from "#app/loading-scene";
 import { Command } from "#enums/command";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
+import GameWrapper from "#test/testUtils/gameWrapper";
+import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -25,6 +26,9 @@ export default class RogueEnv {
   /** Underlying Phaser game instance running in headless mode. */
   private game: Phaser.Game;
 
+  /** Helper wrapper for injecting Phaser mocks. */
+  private wrapper: GameWrapper;
+
   /** The active {@link BattleScene}. */
   public scene: BattleScene;
 
@@ -33,9 +37,16 @@ export default class RogueEnv {
       type: Phaser.HEADLESS,
     });
     this.scene = new BattleScene();
-    // Attach the scenes to the game immediately.
-    this.game.scene.add(LoadingScene.KEY, new LoadingScene(), true);
-    this.game.scene.add("battle", this.scene, true);
+    this.wrapper = new GameWrapper(this.game, true);
+    this.wrapper.setScene(this.scene);
+    const originalPush = this.scene.phaseManager.pushNew.bind(this.scene.phaseManager);
+    this.scene.phaseManager.pushNew = (phase: string, ...args: any[]) => {
+      if (phase === "LoginPhase" || phase === "TitlePhase") {
+        return;
+      }
+      return originalPush(phase as any, ...(args as any));
+    };
+    this.scene.phaseManager.clearAllPhases();
   }
 
   /**
@@ -44,9 +55,11 @@ export default class RogueEnv {
    */
   reset(): void {
     this.scene.reset(false, true);
+    this.scene.enableTutorials = false;
+    initSceneWithoutEncounterPhase(this.scene);
+    this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.clearAllPhases();
-    this.scene.phaseManager.pushNew("LoginPhase");
-    this.scene.phaseManager.pushNew("TitlePhase");
+    this.scene.phaseManager.pushNew("TurnInitPhase");
     this.scene.phaseManager.shiftPhase();
   }
 

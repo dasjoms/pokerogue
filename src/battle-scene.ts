@@ -1159,8 +1159,8 @@ export default class BattleScene extends SceneBase {
 
     this.modifiers = [];
     this.enemyModifiers = [];
-    this.modifierBar.removeAll(true);
-    this.enemyModifierBar.removeAll(true);
+    this.modifierBar?.removeAll(true);
+    this.enemyModifierBar?.removeAll(true);
 
     for (const p of this.getPlayerParty()) {
       p.destroy();
