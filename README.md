@@ -41,6 +41,11 @@ For detailed guidelines on documenting your code, refer to the [comments.md](./d
 
 - The translations were moved to the [dedicated translation repository](https://github.com/pagefaultgames/pokerogue-locales) and are now applied as a submodule in this project.
 - The command to retrieve the translations is `git submodule update --init --recursive`. If you still struggle to get it working, please reach out to #dev-corner channel in Discord.
+## Running Tests
+
+Run `npm ci --ignore-scripts` to install dependencies without executing postinstall hooks.
+Then run `npm run test:silent` to execute the Vitest suite with concise output.
+
 
 ## 🪧 To Do
 
