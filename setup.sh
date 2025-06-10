@@ -7,9 +7,10 @@ if [ ! -d "$NVM_DIR" ]; then
 fi
 # shellcheck source=/dev/null
 source "$NVM_DIR/nvm.sh"
-# install and use exact node version from .nvmrc
-nvm install 22.14.0
-nvm use 22.14.0
+# install and use node version from .nvmrc
+NODE_VERSION="$(cat .nvmrc)"
+nvm install "$NODE_VERSION"
+nvm use "$NODE_VERSION"
 
 # update npm to latest
 npm install -g npm

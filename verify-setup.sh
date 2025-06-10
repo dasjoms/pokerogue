@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-EXPECTED_NODE_VERSION="v22.14.0"
+EXPECTED_NODE_VERSION="$(cat .nvmrc)"
 ACTUAL_NODE_VERSION="$(node --version)"
 if [ "$ACTUAL_NODE_VERSION" != "$EXPECTED_NODE_VERSION" ]; then
   echo "Expected Node $EXPECTED_NODE_VERSION but found $ACTUAL_NODE_VERSION"
