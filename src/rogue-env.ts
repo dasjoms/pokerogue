@@ -109,6 +109,13 @@ export default class RogueEnv {
       action(this.scene);
     }
     this.scene.phaseManager.shiftPhase();
+    let phase = this.scene.phaseManager.getCurrentPhase();
+    let safety = 0;
+    while (phase && !(phase instanceof CommandPhase) && safety < 100) {
+      this.scene.phaseManager.shiftPhase();
+      phase = this.scene.phaseManager.getCurrentPhase();
+      safety++;
+    }
     const nextState = this.getState();
     if (this.logger) {
       const record: TransitionRecord = {

@@ -46,6 +46,19 @@ For detailed guidelines on documenting your code, refer to the [comments.md](./d
 Run `npm ci --ignore-scripts` to install dependencies without executing postinstall hooks.
 Then run `npm run test:silent` to execute the Vitest suite with concise output. This repository however is a fork that only needs to use the tests listed within the AGENTS.md.
 
+## Headless Environment Demo
+
+Run the demo script to confirm headless battles progress correctly:
+
+```bash
+bash setup.sh
+source ~/.nvm/nvm.sh
+nvm use 22.14.0
+npm run env:demo -- 3 demo-log.json
+```
+
+The optional first argument specifies how many `step()` calls to run (defaults to 2). If a path is provided as the second argument, the transition log is written there; otherwise it prints to STDOUT.
+
 
 ## 🪧 To Do
 
