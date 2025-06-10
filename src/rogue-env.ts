@@ -17,6 +17,14 @@ export enum RogueAction {
   FIGHT_3 = 2,
   /** Use the fourth move in the active Pokémon's moveset. */
   FIGHT_4 = 3,
+  /** Attempt to flee from battle. */
+  RUN = 4,
+  /** Switch to the first party Pokémon. */
+  SWITCH_1 = 5,
+  /** Switch to the second party Pokémon. */
+  SWITCH_2 = 6,
+  /** Switch to the third party Pokémon. */
+  SWITCH_3 = 7,
 }
 
 /**
@@ -88,7 +96,13 @@ export default class RogueEnv {
     if (typeof action === "number") {
       const phase: any = this.scene.phaseManager.getCurrentPhase();
       if (phase?.handleCommand) {
-        phase.handleCommand(Command.FIGHT, action);
+        if (action <= RogueAction.FIGHT_4) {
+          phase.handleCommand(Command.FIGHT, action);
+        } else if (action === RogueAction.RUN) {
+          phase.handleCommand(Command.RUN, 0);
+        } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
+          phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
+        }
       }
     } else if (typeof action === "function") {
       action(this.scene);
