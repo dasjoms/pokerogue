@@ -1,5 +1,19 @@
 import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
+import { LoadingScene } from "#app/loading-scene";
+import { Command } from "#enums/command";
+import serializeState, { type SerializedState } from "#app/utils/serialize";
+
+export enum RogueAction {
+  /** Use the first move in the active Pokémon's moveset. */
+  FIGHT_1 = 0,
+  /** Use the second move in the active Pokémon's moveset. */
+  FIGHT_2 = 1,
+  /** Use the third move in the active Pokémon's moveset. */
+  FIGHT_3 = 2,
+  /** Use the fourth move in the active Pokémon's moveset. */
+  FIGHT_4 = 3,
+}
 
 /**
  * Headless environment for automated gameplay without UI.
@@ -19,9 +33,9 @@ export default class RogueEnv {
       type: Phaser.HEADLESS,
     });
     this.scene = new BattleScene();
-    // Attach the scene to the game immediately.
+    // Attach the scenes to the game immediately.
+    this.game.scene.add(LoadingScene.KEY, new LoadingScene(), true);
     this.game.scene.add("battle", this.scene, true);
-    this.scene.create();
   }
 
   /**
@@ -38,29 +52,27 @@ export default class RogueEnv {
 
   /**
    * Apply an action and progress to the next phase.
-   * @param action Function that interacts with the underlying scene.
+   *
+   * When an {@link RogueAction} is provided it will be mapped to the
+   * appropriate in‑game command. A custom function may also be passed to
+   * manipulate the underlying {@link BattleScene} directly.
    */
-  step(action?: (scene: BattleScene) => void): void {
-    action?.(this.scene);
+  step(action?: RogueAction | ((scene: BattleScene) => void)): void {
+    if (typeof action === "number") {
+      const phase: any = this.scene.phaseManager.getCurrentPhase();
+      if (phase?.handleCommand) {
+        phase.handleCommand(Command.FIGHT, action);
+      }
+    } else if (typeof action === "function") {
+      action(this.scene);
+    }
     this.scene.phaseManager.shiftPhase();
   }
 
   /**
    * Return a lightweight snapshot of the current battle state.
    */
-  getState(): Record<string, unknown> {
-    return {
-      phase: this.scene.phaseManager.getCurrentPhase()?.constructor.name,
-      playerParty: this.scene.getPlayerParty().map(p => ({
-        id: p.species.speciesId,
-        hp: p.hp,
-        maxHp: p.getMaxHp(),
-      })),
-      enemyParty: this.scene.getEnemyParty().map(p => ({
-        id: p.species.speciesId,
-        hp: p.hp,
-        maxHp: p.getMaxHp(),
-      })),
-    };
+  getState(): SerializedState {
+    return serializeState(this.scene);
   }
 }
