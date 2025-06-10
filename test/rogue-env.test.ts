@@ -34,3 +34,18 @@ describe("rogue-env logging", () => {
     expect(records[0].nextState).toBeDefined();
   });
 });
+
+describe("rogue-env seeding", () => {
+  it("should produce identical states for the same seed", () => {
+    const env = new RogueEnv();
+    env.reset("fixed-seed");
+    env.step(RogueAction.FIGHT_1);
+    const first = env.getState();
+
+    env.reset("fixed-seed");
+    env.step(RogueAction.FIGHT_1);
+    const second = env.getState();
+
+    expect(second).toEqual(first);
+  });
+});

@@ -1,10 +1,10 @@
 import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
 import { Command } from "#enums/command";
+import { randomString } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
-import TransitionLogger, {
-  type TransitionRecord,
-} from "#app/transition-logger";
+import type TransitionLogger from "#app/transition-logger";
+import type { TransitionRecord } from "#app/transition-logger";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 
@@ -38,7 +38,11 @@ export default class RogueEnv {
   /** The active {@link BattleScene}. */
   public scene: BattleScene;
 
-  constructor() {
+  /** Base seed used to initialize each run. */
+  private seed: string;
+
+  constructor(seed?: string) {
+    this.seed = seed ?? randomString(24);
     this.game = new Phaser.Game({
       type: Phaser.HEADLESS,
     });
@@ -59,8 +63,11 @@ export default class RogueEnv {
    * Reset the scene to the initial state.
    * Equivalent to starting a new run.
    */
-  reset(): void {
+  reset(seed = this.seed): void {
+    this.seed = seed;
     this.scene.reset(false, true);
+    this.scene.setSeed(this.seed);
+    this.scene.resetSeed();
     this.scene.enableTutorials = false;
     initSceneWithoutEncounterPhase(this.scene);
     this.scene.currentBattle.incrementTurn();
@@ -76,11 +83,7 @@ export default class RogueEnv {
    * appropriate in‑game command. A custom function may also be passed to
    * manipulate the underlying {@link BattleScene} directly.
    */
-  step(
-    action?: RogueAction | ((scene: BattleScene) => void),
-    reward = 0,
-    done = false,
-  ): void {
+  step(action?: RogueAction | ((scene: BattleScene) => void), reward = 0, done = false): void {
     const prevState = this.getState();
     if (typeof action === "number") {
       const phase: any = this.scene.phaseManager.getCurrentPhase();
