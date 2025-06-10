@@ -105,3 +105,17 @@ describe("rogue-env seeding", () => {
     expect(second).toEqual(first);
   });
 });
+
+describe("rogue-env progression", () => {
+  it("should advance to the next command phase when stepping", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const start = env.getState();
+    expect(start.phase).toBe("CommandPhase");
+
+    env.step(RogueAction.FIGHT_1);
+    const next = env.getState();
+    expect(next.phase).toBe("CommandPhase");
+    expect(next.turn).toBeGreaterThan(start.turn);
+  });
+});

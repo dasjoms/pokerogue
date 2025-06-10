@@ -25,7 +25,8 @@
     "postinstall": "npx lefthook install && npx lefthook run post-merge",
     "update-version:patch": "npm version patch --force --no-git-tag-version",
     "update-version:minor": "npm version minor --force --no-git-tag-version",
-    "update-locales:remote": "git submodule update --progress --init --recursive --force --remote"
+    "update-locales:remote": "git submodule update --progress --init --recursive --force --remote",
+    "env:demo": "npx tsx scripts/rogue-env-demo.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -45,6 +46,7 @@
     "lefthook": "^1.11.5",
     "msw": "^2.7.3",
     "phaser3spectorjs": "^0.0.8",
+    "tsx": "^4.19.4",
     "typedoc": "^0.28.1",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.28.0",
