@@ -44,7 +44,7 @@ For detailed guidelines on documenting your code, refer to the [comments.md](./d
 ## Running Tests
 
 Run `npm ci --ignore-scripts` to install dependencies without executing postinstall hooks.
-Then run `npm run test:silent` to execute the Vitest suite with concise output.
+Then run `npm run test:silent` to execute the Vitest suite with concise output. This repository however is a fork that only needs to use the tests listed within the AGENTS.md.
 
 
 ## 🪧 To Do
