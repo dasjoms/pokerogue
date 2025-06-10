@@ -517,104 +517,106 @@ export default class BattleScene extends SceneBase {
     this.modifiers = [];
     this.enemyModifiers = [];
 
-    this.modifierBar = new ModifierBar();
-    this.modifierBar.setName("modifier-bar");
-    this.add.existing(this.modifierBar);
-    uiContainer.add(this.modifierBar);
+    if (!headless) {
+      this.modifierBar = new ModifierBar();
+      this.modifierBar.setName("modifier-bar");
+      this.add.existing(this.modifierBar);
+      uiContainer.add(this.modifierBar);
 
-    this.enemyModifierBar = new ModifierBar(true);
-    this.enemyModifierBar.setName("enemy-modifier-bar");
-    this.add.existing(this.enemyModifierBar);
-    uiContainer.add(this.enemyModifierBar);
+      this.enemyModifierBar = new ModifierBar(true);
+      this.enemyModifierBar.setName("enemy-modifier-bar");
+      this.add.existing(this.enemyModifierBar);
+      uiContainer.add(this.enemyModifierBar);
 
-    this.charSprite = new CharSprite();
-    this.charSprite.setName("sprite-char");
-    this.charSprite.setup();
+      this.charSprite = new CharSprite();
+      this.charSprite.setName("sprite-char");
+      this.charSprite.setup();
 
-    this.fieldUI.add(this.charSprite);
+      this.fieldUI.add(this.charSprite);
 
-    this.pbTray = new PokeballTray(true);
-    this.pbTray.setName("pb-tray");
-    this.pbTray.setup();
+      this.pbTray = new PokeballTray(true);
+      this.pbTray.setName("pb-tray");
+      this.pbTray.setup();
 
-    this.pbTrayEnemy = new PokeballTray(false);
-    this.pbTrayEnemy.setName("enemy-pb-tray");
-    this.pbTrayEnemy.setup();
+      this.pbTrayEnemy = new PokeballTray(false);
+      this.pbTrayEnemy.setName("enemy-pb-tray");
+      this.pbTrayEnemy.setup();
 
-    this.fieldUI.add(this.pbTray);
-    this.fieldUI.add(this.pbTrayEnemy);
+      this.fieldUI.add(this.pbTray);
+      this.fieldUI.add(this.pbTrayEnemy);
 
-    this.abilityBar = new AbilityBar();
-    this.abilityBar.setName("ability-bar");
-    this.abilityBar.setup();
-    this.fieldUI.add(this.abilityBar);
+      this.abilityBar = new AbilityBar();
+      this.abilityBar.setName("ability-bar");
+      this.abilityBar.setup();
+      this.fieldUI.add(this.abilityBar);
 
-    this.partyExpBar = new PartyExpBar();
-    this.partyExpBar.setName("party-exp-bar");
-    this.partyExpBar.setup();
-    this.fieldUI.add(this.partyExpBar);
+      this.partyExpBar = new PartyExpBar();
+      this.partyExpBar.setName("party-exp-bar");
+      this.partyExpBar.setup();
+      this.fieldUI.add(this.partyExpBar);
 
-    this.candyBar = new CandyBar();
-    this.candyBar.setName("candy-bar");
-    this.candyBar.setup();
-    this.fieldUI.add(this.candyBar);
+      this.candyBar = new CandyBar();
+      this.candyBar.setName("candy-bar");
+      this.candyBar.setup();
+      this.fieldUI.add(this.candyBar);
 
-    this.biomeWaveText = addTextObject(
-      this.game.canvas.width / 6 - 2,
-      0,
-      startingWave.toString(),
-      TextStyle.BATTLE_INFO,
-    );
-    this.biomeWaveText.setName("text-biome-wave");
-    this.biomeWaveText.setOrigin(1, 0.5);
-    this.fieldUI.add(this.biomeWaveText);
+      this.biomeWaveText = addTextObject(
+        this.game.canvas.width / 6 - 2,
+        0,
+        startingWave.toString(),
+        TextStyle.BATTLE_INFO,
+      );
+      this.biomeWaveText.setName("text-biome-wave");
+      this.biomeWaveText.setOrigin(1, 0.5);
+      this.fieldUI.add(this.biomeWaveText);
 
-    this.moneyText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.MONEY);
-    this.moneyText.setName("text-money");
-    this.moneyText.setOrigin(1, 0.5);
-    this.fieldUI.add(this.moneyText);
+      this.moneyText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.MONEY);
+      this.moneyText.setName("text-money");
+      this.moneyText.setOrigin(1, 0.5);
+      this.fieldUI.add(this.moneyText);
 
-    this.scoreText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.PARTY, { fontSize: "54px" });
-    this.scoreText.setName("text-score");
-    this.scoreText.setOrigin(1, 0.5);
-    this.fieldUI.add(this.scoreText);
+      this.scoreText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.PARTY, { fontSize: "54px" });
+      this.scoreText.setName("text-score");
+      this.scoreText.setOrigin(1, 0.5);
+      this.fieldUI.add(this.scoreText);
 
-    this.luckText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.PARTY, { fontSize: "54px" });
-    this.luckText.setName("text-luck");
-    this.luckText.setOrigin(1, 0.5);
-    this.luckText.setVisible(false);
-    this.fieldUI.add(this.luckText);
+      this.luckText = addTextObject(this.game.canvas.width / 6 - 2, 0, "", TextStyle.PARTY, { fontSize: "54px" });
+      this.luckText.setName("text-luck");
+      this.luckText.setOrigin(1, 0.5);
+      this.luckText.setVisible(false);
+      this.fieldUI.add(this.luckText);
 
-    this.luckLabelText = addTextObject(
-      this.game.canvas.width / 6 - 2,
-      0,
-      i18next.t("common:luckIndicator"),
-      TextStyle.PARTY,
-      { fontSize: "54px" },
-    );
-    this.luckLabelText.setName("text-luck-label");
-    this.luckLabelText.setOrigin(1, 0.5);
-    this.luckLabelText.setVisible(false);
-    this.fieldUI.add(this.luckLabelText);
+      this.luckLabelText = addTextObject(
+        this.game.canvas.width / 6 - 2,
+        0,
+        i18next.t("common:luckIndicator"),
+        TextStyle.PARTY,
+        { fontSize: "54px" },
+      );
+      this.luckLabelText.setName("text-luck-label");
+      this.luckLabelText.setOrigin(1, 0.5);
+      this.luckLabelText.setVisible(false);
+      this.fieldUI.add(this.luckLabelText);
 
-    this.arenaFlyout = new ArenaFlyout();
-    this.fieldUI.add(this.arenaFlyout);
-    this.fieldUI.moveBelow<Phaser.GameObjects.GameObject>(this.arenaFlyout, this.fieldOverlay);
+      this.arenaFlyout = new ArenaFlyout();
+      this.fieldUI.add(this.arenaFlyout);
+      this.fieldUI.moveBelow<Phaser.GameObjects.GameObject>(this.arenaFlyout, this.fieldOverlay);
 
-    this.updateUIPositions();
+      this.updateUIPositions();
 
-    this.damageNumberHandler = new DamageNumberHandler();
+      this.damageNumberHandler = new DamageNumberHandler();
 
-    this.spriteSparkleHandler = new PokemonSpriteSparkleHandler();
-    this.spriteSparkleHandler.setup();
+      this.spriteSparkleHandler = new PokemonSpriteSparkleHandler();
+      this.spriteSparkleHandler.setup();
 
-    this.pokemonInfoContainer = new PokemonInfoContainer(
-      this.game.canvas.width / 6 + 52,
-      -(this.game.canvas.height / 6) + 66,
-    );
-    this.pokemonInfoContainer.setup();
+      this.pokemonInfoContainer = new PokemonInfoContainer(
+        this.game.canvas.width / 6 + 52,
+        -(this.game.canvas.height / 6) + 66,
+      );
+      this.pokemonInfoContainer.setup();
 
-    this.fieldUI.add(this.pokemonInfoContainer);
+      this.fieldUI.add(this.pokemonInfoContainer);
+    }
 
     this.party = [];
 
@@ -1523,6 +1525,9 @@ export default class BattleScene extends SceneBase {
   }
 
   updateFieldScale(): Promise<void> {
+    if (headless) {
+      return Promise.resolve();
+    }
     return new Promise(resolve => {
       const fieldScale =
         Math.floor(
@@ -1539,6 +1544,10 @@ export default class BattleScene extends SceneBase {
   }
 
   setFieldScale(scale: number, instant = false): Promise<void> {
+    if (headless) {
+      this.field.scale = scale * 6;
+      return Promise.resolve();
+    }
     return new Promise(resolve => {
       scale *= 6;
       if (this.field.scale === scale) {
@@ -2067,6 +2076,9 @@ export default class BattleScene extends SceneBase {
   }
 
   updateUIPositions(): void {
+    if (headless) {
+      return;
+    }
     const enemyModifierCount = this.enemyModifiers.filter(m => m.isIconVisible()).length;
     const biomeWaveTextHeight = this.biomeWaveText.getBottomLeft().y - this.biomeWaveText.getTopLeft().y;
     this.biomeWaveText.setY(
@@ -2089,6 +2101,9 @@ export default class BattleScene extends SceneBase {
    * Pushes all {@linkcode Phaser.GameObjects.Text} objects in the top right to the bottom of the canvas
    */
   sendTextToBack(): void {
+    if (headless) {
+      return;
+    }
     this.fieldUI.sendToBack(this.biomeWaveText);
     this.fieldUI.sendToBack(this.moneyText);
     this.fieldUI.sendToBack(this.scoreText);
@@ -2964,7 +2979,9 @@ export default class BattleScene extends SceneBase {
   }
 
   setModifiersVisible(visible: boolean) {
-    [this.modifierBar, this.enemyModifierBar].map(m => m.setVisible(visible));
+    if (!headless) {
+      [this.modifierBar, this.enemyModifierBar].map(m => m.setVisible(visible));
+    }
   }
 
   // TODO: Document this
@@ -2993,9 +3010,11 @@ export default class BattleScene extends SceneBase {
     }
 
     this.updatePartyForModifiers(player ? this.getPlayerParty() : this.getEnemyParty(), instant);
-    (player ? this.modifierBar : this.enemyModifierBar).updateModifiers(modifiers);
-    if (!player) {
-      this.updateUIPositions();
+    if (!headless) {
+      (player ? this.modifierBar : this.enemyModifierBar).updateModifiers(modifiers);
+      if (!player) {
+        this.updateUIPositions();
+      }
     }
   }
 
@@ -3004,7 +3023,7 @@ export default class BattleScene extends SceneBase {
       Promise.allSettled(
         party.map(p => {
           p.calculateStats();
-          return p.updateInfo(instant);
+          return headless ? Promise.resolve() : p.updateInfo(instant);
         }),
       ).then(() => resolve());
     });

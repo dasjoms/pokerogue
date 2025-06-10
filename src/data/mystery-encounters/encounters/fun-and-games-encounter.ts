@@ -7,6 +7,7 @@ import {
 } from "#app/data/mystery-encounters/utils/encounter-phase-utils";
 import { MysteryEncounterType } from "#enums/mystery-encounter-type";
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import type MysteryEncounter from "#app/data/mystery-encounters/mystery-encounter";
 import { MysteryEncounterBuilder } from "#app/data/mystery-encounters/mystery-encounter";
 import { MysteryEncounterOptionBuilder } from "#app/data/mystery-encounters/mystery-encounter-option";
@@ -191,7 +192,9 @@ async function summonPlayerPokemon() {
         pokemonName: getPokemonNameWithAffix(playerPokemon),
       }),
     );
-    globalScene.pbTray.hide();
+    if (!headless) {
+      globalScene.pbTray.hide();
+    }
     globalScene.trainer.setTexture(
       `trainer_${globalScene.gameData.gender === PlayerGender.FEMALE ? "f" : "m"}_back_pb`,
     );

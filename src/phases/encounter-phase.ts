@@ -1,6 +1,7 @@
 import { BattlerIndex } from "#enums/battler-index";
 import { BattleType } from "#enums/battle-type";
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import { PLAYER_PARTY_MAX_SIZE } from "#app/constants";
 import {
   applyAbAttrs,
@@ -424,8 +425,10 @@ export class EncounterPhase extends BattlePhase {
       const doSummon = () => {
         globalScene.currentBattle.started = true;
         globalScene.playBgm(undefined);
-        globalScene.pbTray.showPbTray(globalScene.getPlayerParty());
-        globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        if (!headless) {
+          globalScene.pbTray.showPbTray(globalScene.getPlayerParty());
+          globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        }
         const doTrainerSummon = () => {
           this.hideEnemyTrainer();
           const availablePartyMembers = globalScene.getEnemyParty().filter(p => !p.isFainted()).length;

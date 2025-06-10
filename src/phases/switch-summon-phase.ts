@@ -1,4 +1,5 @@
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import {
   applyPreSummonAbAttrs,
   applyPreSwitchOutAbAttrs,
@@ -57,7 +58,9 @@ export class SwitchSummonPhase extends SummonPhase {
       }
       if (this.slotIndex > -1) {
         this.showEnemyTrainer(!(this.fieldIndex % 2) ? TrainerSlot.TRAINER : TrainerSlot.TRAINER_PARTNER);
-        globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        if (!headless) {
+          globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        }
       }
     }
 
@@ -209,7 +212,9 @@ export class SwitchSummonPhase extends SummonPhase {
     } else {
       globalScene.time.delayedCall(1500, () => {
         this.hideEnemyTrainer();
-        globalScene.pbTrayEnemy.hide();
+        if (!headless) {
+          globalScene.pbTrayEnemy.hide();
+        }
         showTextAndSummon();
       });
     }
