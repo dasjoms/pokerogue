@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -117,5 +117,16 @@ describe("rogue-env progression", () => {
     const next = env.getState();
     expect(next.phase).toBe("CommandPhase");
     expect(next.turn).toBeGreaterThan(start.turn);
+  });
+});
+
+describe("headless flag", () => {
+  it("should force bypassLogin when set", async () => {
+    process.env.VITE_HEADLESS = "1";
+    vi.resetModules();
+    const mod = await import("#app/global-vars/bypass-login");
+    expect(mod.bypassLogin).toBe(true);
+    delete process.env.VITE_HEADLESS;
+    vi.resetModules();
   });
 });
