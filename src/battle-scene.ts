@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import UI from "#app/ui/ui";
+import { headless } from "#app/global-vars/headless";
 import type Pokemon from "#app/field/pokemon";
 import { EnemyPokemon, PlayerPokemon } from "#app/field/pokemon";
 import type { PokemonSpeciesFilter } from "#app/data/pokemon-species";
@@ -422,7 +423,9 @@ export default class BattleScene extends SceneBase {
 
     this.gameData = new GameData();
 
-    addUiThemeOverrides();
+    if (!headless) {
+      addUiThemeOverrides();
+    }
 
     this.load.setBaseURL();
 
@@ -465,28 +468,30 @@ export default class BattleScene extends SceneBase {
 
     this.fieldUI = fieldUI;
 
-    const transition = this.make.rexTransitionImagePack(
-      {
-        x: 0,
-        y: 0,
-        scale: 6,
-        key: "loading_bg",
-        origin: { x: 0, y: 0 },
-      },
-      true,
-    );
+    if (!headless) {
+      const transition = this.make.rexTransitionImagePack(
+        {
+          x: 0,
+          y: 0,
+          scale: 6,
+          key: "loading_bg",
+          origin: { x: 0, y: 0 },
+        },
+        true,
+      );
 
-    //@ts-ignore (the defined types in the package are incromplete...)
-    transition.transit({
-      mode: "blinds",
-      ease: "Cubic.easeInOut",
-      duration: 1250,
-    });
-    transition.once("complete", () => {
-      transition.destroy();
-    });
+      //@ts-ignore (the defined types in the package are incromplete...)
+      transition.transit({
+        mode: "blinds",
+        ease: "Cubic.easeInOut",
+        duration: 1250,
+      });
+      transition.once("complete", () => {
+        transition.destroy();
+      });
 
-    this.add.existing(transition);
+      this.add.existing(transition);
+    }
 
     const uiContainer = this.add.container(0, 0);
     uiContainer.setName("ui");
@@ -674,7 +679,9 @@ export default class BattleScene extends SceneBase {
 
     this.ui = ui;
 
-    ui.setup();
+    if (!headless) {
+      ui.setup();
+    }
 
     const defaultMoves = [MoveId.TACKLE, MoveId.TAIL_WHIP, MoveId.FOCUS_ENERGY, MoveId.STRUGGLE];
 
@@ -686,8 +693,10 @@ export default class BattleScene extends SceneBase {
       ).then(() => loadMoveAnimAssets(defaultMoves, true)),
       this.initStarterColors(),
     ]).then(() => {
-      this.phaseManager.pushNew("LoginPhase");
-      this.phaseManager.pushNew("TitlePhase");
+      if (!headless) {
+        this.phaseManager.pushNew("LoginPhase");
+        this.phaseManager.pushNew("TitlePhase");
+      }
 
       this.phaseManager.shiftPhase();
     });
