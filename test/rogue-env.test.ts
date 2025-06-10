@@ -4,6 +4,13 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import RogueEnv, { RogueAction } from "#app/rogue-env";
 import TransitionLogger from "#app/transition-logger";
+import Phaser from "phaser";
+import GameWrapper from "#test/testUtils/gameWrapper";
+import BattleScene from "#app/battle-scene";
+import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
+import serializeState from "#app/utils/serialize";
+import { Command } from "#enums/command";
+import { CommandPhase } from "#app/phases/command-phase";
 
 describe("rogue-env serialization", () => {
   it("should return serialized state after reset", () => {
@@ -130,3 +137,100 @@ describe("headless flag", () => {
     vi.resetModules();
   });
 });
+
+describe("rogue-env parity", () => {
+  function applyAction(scene: any, action: RogueAction) {
+    const phase: any = scene.phaseManager.getCurrentPhase();
+    if (phase?.handleCommand) {
+      if (action <= RogueAction.FIGHT_4) {
+        phase.handleCommand(Command.FIGHT, action);
+      } else if (action === RogueAction.RUN) {
+        phase.handleCommand(Command.RUN, 0);
+      } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
+        phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
+      }
+    }
+    scene.phaseManager.shiftPhase();
+    let p = scene.phaseManager.getCurrentPhase();
+    let safety = 0;
+    while (p && !(p instanceof CommandPhase) && safety < 100) {
+      scene.phaseManager.shiftPhase();
+      p = scene.phaseManager.getCurrentPhase();
+      safety++;
+    }
+  }
+
+  function getAvailableActions(scene: any): RogueAction[] {
+    const phase = scene.phaseManager.getCurrentPhase();
+    const actions: RogueAction[] = [];
+    if (phase instanceof CommandPhase) {
+      const pokemon = phase.getPokemon();
+      const moves = pokemon.getMoveset();
+      for (let i = 0; i < Math.min(4, moves.length); i++) {
+        if (pokemon.trySelectMove(i)) {
+          actions.push(RogueAction.FIGHT_1 + i);
+        }
+      }
+      if (!pokemon.isTrapped()) {
+        actions.push(RogueAction.RUN);
+        const party = scene.getPlayerParty();
+        for (let i = 0; i < Math.min(3, party.length); i++) {
+          const p = party[i];
+          if (p.hp > 0 && !p.isActive(true)) {
+            actions.push((RogueAction.SWITCH_1 + i) as RogueAction);
+          }
+        }
+      }
+    }
+    return actions;
+  }
+
+  function getState(scene: any) {
+    const state = serializeState(scene) as any;
+    state.availableActions = getAvailableActions(scene);
+    return state;
+  }
+
+  it("should match the standard scene for identical actions", () => {
+    const seed = "parity-seed";
+    const actions = [RogueAction.FIGHT_1, RogueAction.FIGHT_1];
+
+    const env = new RogueEnv(seed);
+    env.reset();
+    const envStates = [env.getState()];
+    for (const act of actions) {
+      env.step(act);
+      envStates.push(env.getState());
+    }
+
+    const game = new Phaser.Game({ type: Phaser.HEADLESS });
+    const wrapper = new GameWrapper(game, true);
+    const scene = new BattleScene();
+    const originalPush = scene.phaseManager.pushNew.bind(scene.phaseManager);
+    scene.phaseManager.pushNew = (phase: string, ...args: any[]) => {
+      if (phase === "LoginPhase" || phase === "TitlePhase") {
+        return;
+      }
+      return originalPush(phase as any, ...(args as any));
+    };
+    wrapper.setScene(scene);
+    scene.reset(false, true);
+    scene.setSeed(seed);
+    scene.resetSeed();
+    scene.enableTutorials = false;
+    initSceneWithoutEncounterPhase(scene);
+    scene.currentBattle.incrementTurn();
+    scene.phaseManager.clearAllPhases();
+    scene.phaseManager.pushNew("TurnInitPhase");
+    scene.phaseManager.shiftPhase();
+
+    const states = [getState(scene)];
+    for (const act of actions) {
+      applyAction(scene, act);
+      states.push(getState(scene));
+    }
+
+    expect(states).toEqual(envStates);
+  });
+});
+
