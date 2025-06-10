@@ -35,6 +35,8 @@ describe("rogue-env serialization", () => {
     expect(state).toHaveProperty("arenaTags");
     expect(Array.isArray(state.arenaTags)).toBe(true);
     expect(state.shopOptions).toBeUndefined();
+    expect(Array.isArray(state.availableActions)).toBe(true);
+    expect(state.availableActions).toEqual(env.getAvailableActions());
 
     env.step(RogueAction.FIGHT_1);
     const nextState = env.getState();
