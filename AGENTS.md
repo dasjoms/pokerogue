@@ -45,4 +45,4 @@ Any new tests you create must be added to the list below for proper project main
 
     - rogue-env.test.ts
 
-ALL tests have to be run exactly like this or they will fail: 'npm run test:silent -- test/rogue-env.test.ts'
+ALL tests have to be run exactly like this if not otherwise specified by the user (remove the silent flag if user asks for it): 'npm run test:silent -- test/rogue-env.test.ts'
