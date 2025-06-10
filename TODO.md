@@ -9,6 +9,11 @@ This document summarizes high level tasks required to expose the game logic for 
   - `step(action)` – apply a single action and advance the game phases.
   - `getState()` – return a serialized representation of the current gamestate.
 - Use existing `GameManager` utilities as reference but strip out UI handlers and test-only helpers.
+- `reset()` should automatically start a classic run with a fixed starter party:
+  - Squirtle, Bulbasaur and Charmander are added directly to the player's party.
+  - Skip all menus and immediately push phases so the first enemy encounter begins.
+  - Reuse logic from `initSceneWithoutEncounterPhase()` to build the starters and populate `BattleScene`.
+  - The first call to `step()` should correspond to selecting the first action in the opening battle.
 
 ## 2. Game state serialization
 - Implement serialization functions that traverse scene objects and return JSON describing:
