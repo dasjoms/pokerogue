@@ -33,3 +33,14 @@ bash verify-setup.sh
 ```
 
 Do not run other project commands until the verification script exits successfully.
+
+
+## Tests
+
+This repository only needs to verify functionality using the tests created specifically for the projects purpose (See the list below).
+Whenever new features are added or modifications are made you are to modify the existing tests or create a new one to verify its functionality.
+Any new tests you create must be added to the list below for proper project maintenance.
+
+### Fork Test Files:
+
+    - rogue-env.test.ts
