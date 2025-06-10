@@ -2,6 +2,9 @@ import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
 import { Command } from "#enums/command";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
+import TransitionLogger, {
+  type TransitionRecord,
+} from "#app/transition-logger";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 
@@ -28,6 +31,9 @@ export default class RogueEnv {
 
   /** Helper wrapper for injecting Phaser mocks. */
   private wrapper: GameWrapper;
+
+  /** Optional logger for transition data. */
+  public logger?: TransitionLogger;
 
   /** The active {@link BattleScene}. */
   public scene: BattleScene;
@@ -70,7 +76,12 @@ export default class RogueEnv {
    * appropriate in‑game command. A custom function may also be passed to
    * manipulate the underlying {@link BattleScene} directly.
    */
-  step(action?: RogueAction | ((scene: BattleScene) => void)): void {
+  step(
+    action?: RogueAction | ((scene: BattleScene) => void),
+    reward = 0,
+    done = false,
+  ): void {
+    const prevState = this.getState();
     if (typeof action === "number") {
       const phase: any = this.scene.phaseManager.getCurrentPhase();
       if (phase?.handleCommand) {
@@ -80,6 +91,17 @@ export default class RogueEnv {
       action(this.scene);
     }
     this.scene.phaseManager.shiftPhase();
+    const nextState = this.getState();
+    if (this.logger) {
+      const record: TransitionRecord = {
+        state: prevState,
+        action: typeof action === "number" ? action : -1,
+        reward,
+        nextState,
+        done,
+      };
+      this.logger.log(record);
+    }
   }
 
   /**
