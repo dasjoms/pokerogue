@@ -8,6 +8,7 @@ import Phaser from "phaser";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import BattleScene from "#app/battle-scene";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
+import { SpeciesId } from "#enums/species-id";
 import serializeState from "#app/utils/serialize";
 import { Command } from "#enums/command";
 import { CommandPhase } from "#app/phases/command-phase";
@@ -51,6 +52,17 @@ describe("rogue-env serialization", () => {
     env.step(RogueAction.FIGHT_1);
     const nextState = env.getState();
     expect(nextState.turn).toBeGreaterThanOrEqual(state.turn);
+  });
+
+  it("should initialize with standard starters", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const party = env.getState().playerParty.map(p => p.species);
+    expect(party).toEqual([
+      SpeciesId.SQUIRTLE,
+      SpeciesId.BULBASAUR,
+      SpeciesId.CHARMANDER,
+    ]);
   });
 });
 
@@ -218,7 +230,11 @@ describe("rogue-env parity", () => {
     scene.setSeed(seed);
     scene.resetSeed();
     scene.enableTutorials = false;
-    initSceneWithoutEncounterPhase(scene);
+    initSceneWithoutEncounterPhase(scene, [
+      SpeciesId.SQUIRTLE,
+      SpeciesId.BULBASAUR,
+      SpeciesId.CHARMANDER,
+    ]);
     scene.currentBattle.incrementTurn();
     scene.phaseManager.clearAllPhases();
     scene.phaseManager.pushNew("TurnInitPhase");

@@ -8,6 +8,7 @@ import type TransitionLogger from "#app/transition-logger";
 import type { TransitionRecord } from "#app/transition-logger";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
+import { SpeciesId } from "#enums/species-id";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -78,7 +79,11 @@ export default class RogueEnv {
     this.scene.setSeed(this.seed);
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
-    initSceneWithoutEncounterPhase(this.scene);
+    initSceneWithoutEncounterPhase(this.scene, [
+      SpeciesId.SQUIRTLE,
+      SpeciesId.BULBASAUR,
+      SpeciesId.CHARMANDER,
+    ]);
     this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.clearAllPhases();
     this.scene.phaseManager.pushNew("TurnInitPhase");
