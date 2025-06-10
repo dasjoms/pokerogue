@@ -57,7 +57,7 @@ nvm use 22.14.0
 npm run env:demo -- 3 demo-log.json
 ```
 
-Set `VITE_HEADLESS=1` to bypass the login phase and disable UI when running headless scripts.
+Set `VITE_HEADLESS=1` to bypass the login phase and skip UI setup when running headless scripts.
 
 The optional first argument specifies how many `step()` calls to run (defaults to 2). If a path is provided as the second argument, the transition log is written there; otherwise it prints to STDOUT.
 
