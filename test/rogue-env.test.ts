@@ -13,6 +13,9 @@ describe("rogue-env serialization", () => {
     expect(Array.isArray(state.enemyParty)).toBe(true);
     expect(state.playerParty[0]).toHaveProperty("species");
     expect(state.playerParty[0]).toHaveProperty("moves");
+    expect(state.playerParty[0]).toHaveProperty("status");
+    expect(state.playerParty[0]).toHaveProperty("items");
+    expect(Array.isArray(state.playerParty[0].items)).toBe(true);
 
     env.step(RogueAction.FIGHT_1);
     const nextState = env.getState();
