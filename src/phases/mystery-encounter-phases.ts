@@ -9,6 +9,7 @@ import { MysteryEncounterMode } from "#enums/mystery-encounter-mode";
 import { SwitchType } from "#enums/switch-type";
 import i18next from "i18next";
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import { getCharVariantFromDialogue } from "../data/dialogue";
 import type { OptionSelectSettings } from "../data/mystery-encounters/utils/encounter-phase-utils";
 import { transitionMysteryEncounterIntroVisuals } from "../data/mystery-encounters/utils/encounter-phase-utils";
@@ -353,8 +354,10 @@ export class MysteryEncounterBattlePhase extends Phase {
       const doSummon = () => {
         globalScene.currentBattle.started = true;
         globalScene.playBgm();
-        globalScene.pbTray.showPbTray(globalScene.getPlayerParty());
-        globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        if (!headless) {
+          globalScene.pbTray.showPbTray(globalScene.getPlayerParty());
+          globalScene.pbTrayEnemy.showPbTray(globalScene.getEnemyParty());
+        }
         const doTrainerSummon = () => {
           this.hideEnemyTrainer();
           const availablePartyMembers = globalScene.getEnemyParty().filter(p => !p.isFainted()).length;

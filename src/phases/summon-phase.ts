@@ -12,6 +12,7 @@ import { PartyMemberPokemonPhase } from "./party-member-pokemon-phase";
 import { MysteryEncounterMode } from "#enums/mystery-encounter-mode";
 import { applyPreSummonAbAttrs, PreSummonAbAttr } from "#app/data/abilities/ability";
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 
 export class SummonPhase extends PartyMemberPokemonPhase {
   // The union type is needed to keep typescript happy as these phases extend from SummonPhase
@@ -77,7 +78,7 @@ export class SummonPhase extends PartyMemberPokemonPhase {
           pokemonName: getPokemonNameWithAffix(this.getPokemon()),
         }),
       );
-      if (this.player) {
+      if (!headless && this.player) {
         globalScene.pbTray.hide();
       }
       globalScene.trainer.setTexture(
@@ -109,10 +110,14 @@ export class SummonPhase extends PartyMemberPokemonPhase {
         pokemonName,
       });
 
-      globalScene.pbTrayEnemy.hide();
+      if (!headless) {
+        globalScene.pbTrayEnemy.hide();
+      }
       globalScene.ui.showText(message, null, () => this.summon());
     } else if (globalScene.currentBattle.isBattleMysteryEncounter()) {
-      globalScene.pbTrayEnemy.hide();
+      if (!headless) {
+        globalScene.pbTrayEnemy.hide();
+      }
       this.summonWild();
     }
   }
