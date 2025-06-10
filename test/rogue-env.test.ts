@@ -1,4 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { promises as fs } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import RogueEnv, { RogueAction } from "#app/rogue-env";
 import TransitionLogger from "#app/transition-logger";
 
@@ -56,6 +59,35 @@ describe("rogue-env logging", () => {
     expect(records[0].state).toEqual(start);
     expect(records[0].action).toBe(RogueAction.FIGHT_1);
     expect(records[0].nextState).toBeDefined();
+  });
+
+  it("should write logs to a file", async () => {
+    const env = new RogueEnv();
+    env.logger = new TransitionLogger();
+    env.reset();
+    env.step(RogueAction.FIGHT_1, 1, false);
+
+    const file = join(tmpdir(), `transitions-${Date.now()}.json`);
+    await env.logger!.saveToFile(file);
+    const contents = await fs.readFile(file, "utf8");
+    expect(contents).toBe(env.logger!.toJSON());
+    await fs.unlink(file);
+  });
+
+  it("should load logs from a file", async () => {
+    const env = new RogueEnv();
+    env.logger = new TransitionLogger();
+    env.reset();
+    env.step(RogueAction.FIGHT_1, 1, false);
+
+    const file = join(tmpdir(), `transitions-${Date.now()}.json`);
+    await env.logger.saveToFile(file);
+
+    const logger2 = new TransitionLogger();
+    await logger2.loadFromFile(file);
+    expect(logger2.getRecords()).toEqual(env.logger.getRecords());
+
+    await fs.unlink(file);
   });
 });
 
