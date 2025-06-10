@@ -22,6 +22,19 @@ describe("rogue-env serialization", () => {
     expect(state).toHaveProperty("enemyActive");
     expect(Array.isArray(state.playerActive)).toBe(true);
     expect(Array.isArray(state.enemyActive)).toBe(true);
+    expect(state).toHaveProperty("pokeballCounts");
+    expect(typeof state.pokeballCounts).toBe("object");
+    expect(state).toHaveProperty("playerModifiers");
+    expect(Array.isArray(state.playerModifiers)).toBe(true);
+    expect(state).toHaveProperty("enemyModifiers");
+    expect(Array.isArray(state.enemyModifiers)).toBe(true);
+    expect(state).toHaveProperty("biome");
+    expect(state).toHaveProperty("battleType");
+    expect(state).toHaveProperty("score");
+    expect(state).toHaveProperty("playerTerasUsed");
+    expect(state).toHaveProperty("arenaTags");
+    expect(Array.isArray(state.arenaTags)).toBe(true);
+    expect(state.shopOptions).toBeUndefined();
 
     env.step(RogueAction.FIGHT_1);
     const nextState = env.getState();

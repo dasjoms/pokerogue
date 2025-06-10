@@ -1,6 +1,13 @@
 import type BattleScene from "#app/battle-scene";
 import type Pokemon from "#app/field/pokemon";
 import { StatusEffect } from "#enums/status-effect";
+import { BattleType } from "#enums/battle-type";
+import { BiomeId } from "#enums/biome-id";
+import { ArenaTagSide } from "#enums/arena-tag-side";
+import { ArenaTagType } from "#enums/arena-tag-type";
+import { getPlayerShopModifierTypeOptionsForWave } from "#app/modifier/modifier-type";
+import { HealShopCostModifier } from "#app/modifier/modifier";
+import { NumberHolder } from "#app/utils/common";
 
 export interface SerializedPokemon {
   species: number;
@@ -35,6 +42,24 @@ export interface SerializedState {
   wave: number;
   /** Player's available money. */
   money: number;
+  /** Current biome identifier. */
+  biome: BiomeId;
+  /** Current battle type. */
+  battleType: BattleType;
+  /** Total score accumulated this run. */
+  score: number;
+  /** Number of terastallizations used by the player this arena. */
+  playerTerasUsed: number;
+  /** Active arena tags influencing the field. */
+  arenaTags: { type: ArenaTagType; side: ArenaTagSide; turns: number }[];
+  /** Remaining Poké Ball counts by type. */
+  pokeballCounts: { [type: number]: number };
+  /** Active player modifiers with stack counts. */
+  playerModifiers: { id: string; stack: number }[];
+  /** Active enemy modifiers with stack counts. */
+  enemyModifiers: { id: string; stack: number }[];
+  /** Current shop options when available. */
+  shopOptions?: { id: string; cost: number }[];
 }
 
 function serializePokemon(p: Pokemon): SerializedPokemon {
@@ -52,8 +77,16 @@ function serializePokemon(p: Pokemon): SerializedPokemon {
 }
 
 export default function serializeState(scene: BattleScene): SerializedState {
+  const phaseName = scene.phaseManager.getCurrentPhase()?.constructor.name;
+  let shopOptions: { id: string; cost: number }[] | undefined;
+  if (phaseName === "SelectModifierPhase" && !scene.gameMode.hasNoShop) {
+    const baseCost = scene.getWaveMoneyAmount(1);
+    const holder = new NumberHolder(baseCost);
+    scene.applyModifier(HealShopCostModifier, true, holder);
+    shopOptions = getPlayerShopModifierTypeOptionsForWave(scene.currentBattle.waveIndex, holder.value).map(o => ({ id: o.type.id, cost: o.cost }));
+  }
   return {
-    phase: scene.phaseManager.getCurrentPhase()?.constructor.name,
+    phase: phaseName,
     turn: scene.currentBattle?.turn ?? 0,
     playerParty: scene.getPlayerParty().map(serializePokemon),
     enemyParty: scene.getEnemyParty().map(serializePokemon),
@@ -63,5 +96,18 @@ export default function serializeState(scene: BattleScene): SerializedState {
     terrain: scene.arena.terrain?.terrainType ?? 0,
     wave: scene.currentBattle?.waveIndex ?? 0,
     money: scene.money ?? 0,
+    biome: scene.arena.biomeType as BiomeId,
+    battleType: scene.currentBattle?.battleType ?? BattleType.WILD,
+    score: scene.score,
+    playerTerasUsed: scene.arena.playerTerasUsed,
+    arenaTags: scene.arena.tags.map(t => ({
+      type: t.tagType,
+      side: t.side,
+      turns: t.turnCount,
+    })),
+    pokeballCounts: { ...scene.pokeballCounts },
+    playerModifiers: scene.modifiers.map(m => ({ id: m.type.id, stack: m.stackCount })),
+    enemyModifiers: scene.enemyModifiers.map(m => ({ id: m.type.id, stack: m.stackCount })),
+    shopOptions,
   };
 }
