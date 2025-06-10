@@ -37,10 +37,12 @@ Do not run other project commands until the verification script exits successful
 
 ## Tests
 
-This repository only needs to verify functionality using the tests created specifically for the projects purpose (See the list below).
+This repository MUST ONLY verify functionality using the tests created specifically for the fork projects purpose (See the list below). No other tests than the ones listed are allowed to be used.
 Whenever new features are added or modifications are made you are to modify the existing tests or create a new one to verify its functionality.
 Any new tests you create must be added to the list below for proper project maintenance.
 
 ### Fork Test Files:
 
     - rogue-env.test.ts
+
+Run the tests like this: 'npm run test:silent -- test/rogue-env.test.ts'
