@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import BattleScene from "#app/battle-scene";
 import { Command } from "#enums/command";
+import { Button } from "#enums/buttons";
 import { CommandPhase } from "#app/phases/command-phase";
 import { randomString } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
@@ -69,6 +70,18 @@ export enum RogueAction {
   SLOT_6 = 26,
   /** Open the bag to use a Poké Ball. */
   BAG = 27,
+  /** Confirm the current UI selection. */
+  UI_ACTION = 28,
+  /** Cancel the current UI selection. */
+  UI_CANCEL = 29,
+  /** Move the UI cursor up. */
+  UI_UP = 30,
+  /** Move the UI cursor down. */
+  UI_DOWN = 31,
+  /** Move the UI cursor left. */
+  UI_LEFT = 32,
+  /** Move the UI cursor right. */
+  UI_RIGHT = 33,
 }
 
 /**
@@ -173,6 +186,20 @@ export default class RogueEnv {
           if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
             cb(action - RogueAction.SLOT_1, 1);
           }
+        } else if (phase?.constructor.name === "SelectModifierPhase" || phase?.constructor.name === "SelectBiomePhase") {
+          const handler: any = this.scene.ui.getHandler();
+          const buttonMap: Record<RogueAction, Button> = {
+            [RogueAction.UI_ACTION]: Button.ACTION,
+            [RogueAction.UI_CANCEL]: Button.CANCEL,
+            [RogueAction.UI_UP]: Button.UP,
+            [RogueAction.UI_DOWN]: Button.DOWN,
+            [RogueAction.UI_LEFT]: Button.LEFT,
+            [RogueAction.UI_RIGHT]: Button.RIGHT,
+          } as const;
+          const button = buttonMap[action as RogueAction];
+          if (button !== undefined && handler?.processInput instanceof Function) {
+            handler.processInput(button);
+          }
         }
       } else if (typeof action === "function") {
         action(this.scene);
@@ -273,6 +300,22 @@ export default class RogueEnv {
           actions.push((RogueAction.SLOT_1 + i) as RogueAction);
         }
       }
+    } else if (phase?.constructor.name === "SelectModifierPhase") {
+      actions.push(
+        RogueAction.UI_ACTION,
+        RogueAction.UI_CANCEL,
+        RogueAction.UI_UP,
+        RogueAction.UI_DOWN,
+        RogueAction.UI_LEFT,
+        RogueAction.UI_RIGHT,
+      );
+    } else if (phase?.constructor.name === "SelectBiomePhase") {
+      actions.push(
+        RogueAction.UI_ACTION,
+        RogueAction.UI_CANCEL,
+        RogueAction.UI_UP,
+        RogueAction.UI_DOWN,
+      );
     }
     return actions;
   }

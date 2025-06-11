@@ -207,6 +207,26 @@ describe("rogue-env progression", () => {
 
     expect(ffState).toEqual(twoState);
   });
+
+  it("should expose ui actions during modifier selection", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const spy = vi.fn();
+    env.scene.phaseManager.currentPhase = { constructor: { name: "SelectModifierPhase" } } as any;
+    env.scene.ui.getHandler = vi.fn().mockReturnValue({ processInput: spy } as any);
+    env.step(RogueAction.UI_ACTION);
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("should expose ui actions during biome selection", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const spy = vi.fn();
+    env.scene.phaseManager.currentPhase = { constructor: { name: "SelectBiomePhase" } } as any;
+    env.scene.ui.getHandler = vi.fn().mockReturnValue({ processInput: spy } as any);
+    env.step(RogueAction.UI_ACTION);
+    expect(spy).toHaveBeenCalled();
+  });
 });
 
 describe("headless flag", () => {
