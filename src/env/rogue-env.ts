@@ -139,64 +139,73 @@ export default class RogueEnv {
     action?: RogueAction | ((scene: BattleScene) => void),
     reward?: number,
     done = false,
+    fastForward = 1,
   ): number {
-    const prevState = this.getState();
-    if (typeof action === "number") {
-      const phase: any = this.scene.phaseManager.getCurrentPhase();
-      if (phase?.handleCommand) {
-        if (action <= RogueAction.FIGHT_4) {
-          phase.handleCommand(Command.FIGHT, action);
-        } else if (action >= RogueAction.TERA_1 && action <= RogueAction.TERA_4) {
-          phase.handleCommand(Command.TERA, action - RogueAction.TERA_1);
-        } else if (action >= RogueAction.BALL_1 && action <= RogueAction.BALL_5) {
-          phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
-        } else if (action === RogueAction.RUN) {
-          phase.handleCommand(Command.RUN, 0);
-        } else if (action === RogueAction.BAG) {
-          phase.handleCommand(Command.BALL, 0);
-        } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
-          phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
+    let total = 0;
+    for (let i = 0; i < fastForward; i++) {
+      const prevState = this.getState();
+
+      if (typeof action === "number") {
+        const phase: any = this.scene.phaseManager.getCurrentPhase();
+        if (phase?.handleCommand) {
+          if (action <= RogueAction.FIGHT_4) {
+            phase.handleCommand(Command.FIGHT, action);
+          } else if (action >= RogueAction.TERA_1 && action <= RogueAction.TERA_4) {
+            phase.handleCommand(Command.TERA, action - RogueAction.TERA_1);
+          } else if (action >= RogueAction.BALL_1 && action <= RogueAction.BALL_5) {
+            phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
+          } else if (action === RogueAction.RUN) {
+            phase.handleCommand(Command.RUN, 0);
+          } else if (action === RogueAction.BAG) {
+            phase.handleCommand(Command.BALL, 0);
+          } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
+            phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
+          }
+        } else if (phase?.constructor.name === "SelectTargetPhase") {
+          const handler: any = this.scene.ui.getHandler();
+          const cb = handler?.targetSelectCallback as ((targets: number[]) => void) | undefined;
+          if (cb && action >= RogueAction.TARGET_1 && action <= RogueAction.TARGET_4) {
+            cb([action - RogueAction.TARGET_1]);
+          }
+        } else if (phase?.constructor.name === "SwitchPhase") {
+          const handler: any = this.scene.ui.getHandler();
+          const cb = handler?.selectCallback as ((slot: number, option: number) => void) | undefined;
+          if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
+            cb(action - RogueAction.SLOT_1, 1);
+          }
         }
-      } else if (phase?.constructor.name === "SelectTargetPhase") {
-        const handler: any = this.scene.ui.getHandler();
-        const cb = handler?.targetSelectCallback as ((targets: number[]) => void) | undefined;
-        if (cb && action >= RogueAction.TARGET_1 && action <= RogueAction.TARGET_4) {
-          cb([action - RogueAction.TARGET_1]);
-        }
-      } else if (phase?.constructor.name === "SwitchPhase") {
-        const handler: any = this.scene.ui.getHandler();
-        const cb = handler?.selectCallback as ((slot: number, option: number) => void) | undefined;
-        if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
-          cb(action - RogueAction.SLOT_1, 1);
-        }
+      } else if (typeof action === "function") {
+        action(this.scene);
       }
-    } else if (typeof action === "function") {
-      action(this.scene);
-    }
-    this.scene.phaseManager.shiftPhase();
-    let phase = this.scene.phaseManager.getCurrentPhase();
-    let safety = 0;
-    while (phase && !(phase instanceof CommandPhase) && safety < 100) {
+
       this.scene.phaseManager.shiftPhase();
-      phase = this.scene.phaseManager.getCurrentPhase();
-      safety++;
+      let phase = this.scene.phaseManager.getCurrentPhase();
+      let safety = 0;
+      while (phase && !(phase instanceof CommandPhase) && safety < 100) {
+        this.scene.phaseManager.shiftPhase();
+        phase = this.scene.phaseManager.getCurrentPhase();
+        safety++;
+      }
+
+      const nextState = this.getState();
+      const computed = computeStepReward(prevState, nextState);
+      const stepReward = reward === undefined ? computed : reward;
+
+      if (this.logger) {
+        const record: TransitionRecord = {
+          state: prevState,
+          action: typeof action === "number" ? action : -1,
+          reward: stepReward,
+          nextState,
+          done: done && i === fastForward - 1,
+        };
+        this.logger.log(record);
+      }
+
+      total += stepReward;
     }
-    const nextState = this.getState();
-    const computed = computeStepReward(prevState, nextState);
-    if (reward === undefined) {
-      reward = computed;
-    }
-    if (this.logger) {
-      const record: TransitionRecord = {
-        state: prevState,
-        action: typeof action === "number" ? action : -1,
-        reward,
-        nextState,
-        done,
-      };
-      this.logger.log(record);
-    }
-    return reward;
+
+    return total;
   }
 
   /**

@@ -26,7 +26,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 
 ## 5. Performance Improvements
 - [x] Skip animations and audio entirely when `headless` to maximise simulation speed.
-- Offer a "fast forward" option to progress multiple internal phases within a single call to `step()`.
+- [x] Offer a "fast forward" option to progress multiple internal phases within a single call to `step()`.
 - Benchmark large batches of steps to identify remaining bottlenecks.
 
 ## 6. Integration and packaging

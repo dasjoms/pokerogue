@@ -192,6 +192,21 @@ describe("rogue-env progression", () => {
     expect(next.phase).toBe("CommandPhase");
     expect(next.turn).toBeGreaterThan(start.turn);
   });
+
+  it("should fast forward multiple steps with a single call", () => {
+    const env = new RogueEnv();
+    env.reset();
+
+    env.step(RogueAction.FIGHT_1, undefined, false, 2);
+    const ffState = env.getState();
+
+    env.reset();
+    env.step(RogueAction.FIGHT_1);
+    env.step(RogueAction.FIGHT_1);
+    const twoState = env.getState();
+
+    expect(ffState).toEqual(twoState);
+  });
 });
 
 describe("headless flag", () => {
