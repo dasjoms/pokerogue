@@ -14,7 +14,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Update tests to cover the new actions and ensure backward compatibility.
 - [x] Extend switching commands to cover party slots beyond the first three.
 - [x] Provide actions or automation for `LearnMovePhase` so move replacement can be handled headlessly.
-- Ensure hatching and evolution phases progress without manual input.
+- [x] Ensure hatching and evolution phases progress without manual input.
 
 ## 3. Enrich state serialization
 - [x] Include detailed move information (power, type, remaining PP) in `SerializedState`.
