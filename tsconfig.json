@@ -13,7 +13,9 @@
     "paths": {
       "#enums/*": ["./enums/*.ts"],
       "#app/*": ["*.ts"],
-      "#test/*": ["../test/*.ts"]
+      "#test/*": ["../test/*.ts"],
+      "#env": ["./env/index.ts"],
+      "#env/*": ["./env/*.ts"]
     },
     "outDir": "./build",
     "noEmit": true

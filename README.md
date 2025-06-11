@@ -59,7 +59,13 @@ npm run env:demo -- 3 demo-log.json
 
 Set `VITE_HEADLESS=1` to bypass the login phase and skip UI setup when running headless scripts.
 
-The optional first argument specifies how many `step()` calls to run (defaults to 2). If a path is provided as the second argument, the transition log is written there; otherwise it prints to STDOUT.
+You can also provide optional environment variables:
+
+- `ROGUE_SEED` – fixed seed used when creating the environment.
+- `ROGUE_LOG_PATH` – file path where transition logs are saved.
+- `ROGUE_STEPS` – number of `step()` calls to execute when running the demo script.
+
+The optional first argument specifies how many `step()` calls to run (defaults to the value of `ROGUE_STEPS` or 2). If a path is provided as the second argument, or via `ROGUE_LOG_PATH`, the transition log is written there; otherwise it prints to STDOUT.
 
 
 ## 🪧 To Do
