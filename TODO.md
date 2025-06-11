@@ -16,7 +16,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 ## 3. Enrich state serialization
 - [x] Include detailed move information (power, type, remaining PP) in `SerializedState`.
 - [x] Capture held items, stat boosts and volatile statuses for both player and enemy.
-- Expose arena features like hazards, terrain turns and wave index in a stable format.
+- [x] Expose arena features like hazards, terrain turns and wave index in a stable format.
 - Version the JSON schema so training data remains usable as the format evolves.
 
 ## 4. Reward calculation and logging
