@@ -375,6 +375,14 @@ export default class BattleScene extends SceneBase {
     this.eventManager = new TimedEventManager();
     this.updateGameInfo();
     initGlobalScene(this);
+    if (headless) {
+      this.moveAnimations = false;
+      this.masterVolume = 0;
+      this.bgmVolume = 0;
+      this.fieldVolume = 0;
+      this.uiVolume = 0;
+      this.seVolume = 0;
+    }
   }
 
   loadPokemonAtlas(key: string, atlasPath: string, experimental?: boolean) {
@@ -687,14 +695,16 @@ export default class BattleScene extends SceneBase {
 
     const defaultMoves = [MoveId.TACKLE, MoveId.TAIL_WHIP, MoveId.FOCUS_ENERGY, MoveId.STRUGGLE];
 
-    Promise.all([
-      Promise.all(loadPokemonAssets),
-      initCommonAnims().then(() => loadCommonAnimAssets(true)),
-      Promise.all(
-        [MoveId.TACKLE, MoveId.TAIL_WHIP, MoveId.FOCUS_ENERGY, MoveId.STRUGGLE].map(m => initMoveAnim(m)),
-      ).then(() => loadMoveAnimAssets(defaultMoves, true)),
-      this.initStarterColors(),
-    ]).then(() => {
+    const tasks = [Promise.all(loadPokemonAssets), this.initStarterColors()];
+    if (!headless) {
+      tasks.push(
+        initCommonAnims().then(() => loadCommonAnimAssets(true)),
+        Promise.all(
+          [MoveId.TACKLE, MoveId.TAIL_WHIP, MoveId.FOCUS_ENERGY, MoveId.STRUGGLE].map(m => initMoveAnim(m)),
+        ).then(() => loadMoveAnimAssets(defaultMoves, true)),
+      );
+    }
+    Promise.all(tasks).then(() => {
       if (!headless) {
         this.phaseManager.pushNew("LoginPhase");
         this.phaseManager.pushNew("TitlePhase");
@@ -2196,6 +2206,9 @@ export default class BattleScene extends SceneBase {
   }
 
   playBgm(bgmName?: string, fadeOut?: boolean): void {
+    if (headless) {
+      return;
+    }
     if (bgmName === undefined) {
       bgmName = this.currentBattle?.getBgmOverride() || this.arena?.bgm;
     }
@@ -2257,6 +2270,9 @@ export default class BattleScene extends SceneBase {
   }
 
   pauseBgm(): boolean {
+    if (headless) {
+      return false;
+    }
     if (this.bgm && !this.bgm.pendingRemove && this.bgm.isPlaying) {
       this.bgm.pause();
       return true;
@@ -2265,6 +2281,9 @@ export default class BattleScene extends SceneBase {
   }
 
   resumeBgm(): boolean {
+    if (headless) {
+      return false;
+    }
     if (this.bgm && !this.bgm.pendingRemove && this.bgm.isPaused) {
       this.bgm.resume();
       return true;
@@ -2273,6 +2292,9 @@ export default class BattleScene extends SceneBase {
   }
 
   updateSoundVolume(): void {
+    if (headless) {
+      return;
+    }
     if (this.sound) {
       for (const sound of this.sound.getAllPlaying() as AnySound[]) {
         if (this.bgmCache.has(sound.key)) {
@@ -2298,6 +2320,9 @@ export default class BattleScene extends SceneBase {
   }
 
   fadeOutBgm(duration = 500, destroy = true): boolean {
+    if (headless) {
+      return false;
+    }
     if (!this.bgm) {
       return false;
     }
@@ -2317,6 +2342,9 @@ export default class BattleScene extends SceneBase {
    * @param delay
    */
   fadeAndSwitchBgm(newBgmKey: string, destroy = false, delay = 2000) {
+    if (headless) {
+      return;
+    }
     this.fadeOutBgm(delay, destroy);
     this.time.delayedCall(delay, () => {
       this.playBgm(newBgmKey);
@@ -2324,6 +2352,9 @@ export default class BattleScene extends SceneBase {
   }
 
   playSound(sound: string | AnySound, config?: object): AnySound {
+    if (headless) {
+      return sound as AnySound;
+    }
     const key = typeof sound === "string" ? sound : sound.key;
     config = config ?? {};
     try {
@@ -2365,6 +2396,9 @@ export default class BattleScene extends SceneBase {
   }
 
   playSoundWithoutBgm(soundName: string, pauseDuration?: number): AnySound {
+    if (headless) {
+      return { key: soundName } as AnySound;
+    }
     this.bgmCache.add(soundName);
     const resumeBgm = this.pauseBgm();
     this.playSound(soundName);

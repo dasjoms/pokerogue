@@ -23,8 +23,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Store `(state, action, reward, next_state, done)` tuples using `TransitionLogger` with optional compression or rotation.
 - [x] Add utilities to replay logged transitions to verify determinism.
 
-## 5. Performance improvements
-- Skip animations and audio entirely when `headless` to maximise simulation speed.
+- [x] Skip animations and audio entirely when `headless` to maximise simulation speed.
 - Offer a "fast forward" option to progress multiple internal phases within a single call to `step()`.
 - Benchmark large batches of steps to identify remaining bottlenecks.
 
