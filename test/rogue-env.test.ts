@@ -275,6 +275,51 @@ describe("rogue-env progression", () => {
     env.step(RogueAction.LEARN_REPLACE_2);
     expect(p.getMoveset()[1].moveId).toBe(MoveId.TACKLE);
   });
+
+  it("should progress egg phases automatically", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const hatchSpy = vi.fn();
+    const endSpy = vi.fn();
+    env.scene.phaseManager.currentPhase = {
+      constructor: { name: "EggHatchPhase" },
+      eggLapsePhase: { hatchEggSilently: hatchSpy },
+      egg: {},
+      end: endSpy,
+    } as any;
+    env.step();
+    expect(hatchSpy).toHaveBeenCalled();
+    expect(endSpy).toHaveBeenCalled();
+
+    env.scene.phaseManager.currentPhase = {
+      constructor: { name: "EggSummaryPhase" },
+      end: endSpy,
+    } as any;
+    env.step();
+    expect(endSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("should complete evolution phases automatically", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const pokemon = env.scene.getPlayerParty()[0];
+    const evolveSpy = vi.spyOn(pokemon, "evolve").mockImplementation(() => Promise.resolve());
+    vi.spyOn(pokemon, "getLevelMoves").mockReturnValue([] as any);
+    const endSpy = vi.fn();
+    const unshiftSpy = vi.spyOn(env.scene.phaseManager, "unshiftNew");
+    env.scene.phaseManager.currentPhase = {
+      constructor: { name: "EvolutionPhase" },
+      pokemon,
+      evolution: {},
+      lastLevel: 1,
+      fusionSpeciesEvolved: false,
+      end: endSpy,
+    } as any;
+    env.step();
+    expect(evolveSpy).toHaveBeenCalled();
+    expect(unshiftSpy).toHaveBeenCalledWith("EndEvolutionPhase");
+    expect(endSpy).toHaveBeenCalled();
+  });
 });
 
 describe("rogue-env termination", () => {
