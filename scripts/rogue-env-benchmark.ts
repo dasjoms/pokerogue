@@ -1,3 +1,4 @@
+import "./headless-globals";
 import { benchmark } from "#env";
 
 const steps = parseInt(process.argv[2] ?? process.env.ROGUE_BENCH_STEPS ?? "1000", 10);

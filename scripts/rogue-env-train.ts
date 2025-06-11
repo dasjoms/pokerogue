@@ -1,3 +1,4 @@
+import "./headless-globals";
 import { RogueEnv, TransitionLogger } from "#env";
 
 const steps = parseInt(process.argv[2] ?? process.env.ROGUE_TRAIN_STEPS ?? "1000", 10);
