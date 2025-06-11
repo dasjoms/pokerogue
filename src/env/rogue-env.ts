@@ -30,58 +30,64 @@ export enum RogueAction {
   SWITCH_2 = 6,
   /** Switch to the third party Pokémon. */
   SWITCH_3 = 7,
+  /** Switch to the fourth party Pokémon. */
+  SWITCH_4 = 8,
+  /** Switch to the fifth party Pokémon. */
+  SWITCH_5 = 9,
+  /** Switch to the sixth party Pokémon. */
+  SWITCH_6 = 10,
   /** Throw the first Poké Ball type. */
-  BALL_1 = 8,
+  BALL_1 = 11,
   /** Throw the second Poké Ball type. */
-  BALL_2 = 9,
+  BALL_2 = 12,
   /** Throw the third Poké Ball type. */
-  BALL_3 = 10,
+  BALL_3 = 13,
   /** Throw the fourth Poké Ball type. */
-  BALL_4 = 11,
+  BALL_4 = 14,
   /** Throw the fifth Poké Ball type. */
-  BALL_5 = 12,
+  BALL_5 = 15,
   /** Terastallize and use the first move. */
-  TERA_1 = 13,
+  TERA_1 = 16,
   /** Terastallize and use the second move. */
-  TERA_2 = 14,
+  TERA_2 = 17,
   /** Terastallize and use the third move. */
-  TERA_3 = 15,
+  TERA_3 = 18,
   /** Terastallize and use the fourth move. */
-  TERA_4 = 16,
+  TERA_4 = 19,
   /** Target the first battler index. */
-  TARGET_1 = 17,
+  TARGET_1 = 20,
   /** Target the second battler index. */
-  TARGET_2 = 18,
+  TARGET_2 = 21,
   /** Target the third battler index. */
-  TARGET_3 = 19,
+  TARGET_3 = 22,
   /** Target the fourth battler index. */
-  TARGET_4 = 20,
+  TARGET_4 = 23,
   /** Choose the first party slot when switching. */
-  SLOT_1 = 21,
+  SLOT_1 = 24,
   /** Choose the second party slot when switching. */
-  SLOT_2 = 22,
+  SLOT_2 = 25,
   /** Choose the third party slot when switching. */
-  SLOT_3 = 23,
+  SLOT_3 = 26,
   /** Choose the fourth party slot when switching. */
-  SLOT_4 = 24,
+  SLOT_4 = 27,
   /** Choose the fifth party slot when switching. */
-  SLOT_5 = 25,
+  SLOT_5 = 28,
   /** Choose the sixth party slot when switching. */
-  SLOT_6 = 26,
+  SLOT_6 = 29,
   /** Open the bag to use a Poké Ball. */
-  BAG = 27,
+  BAG = 30,
   /** Confirm the current UI selection. */
-  UI_ACTION = 28,
+  UI_ACTION = 31,
   /** Cancel the current UI selection. */
-  UI_CANCEL = 29,
+  UI_CANCEL = 32,
   /** Move the UI cursor up. */
-  UI_UP = 30,
+  UI_UP = 33,
   /** Move the UI cursor down. */
-  UI_DOWN = 31,
+  UI_DOWN = 34,
   /** Move the UI cursor left. */
-  UI_LEFT = 32,
+  UI_LEFT = 35,
   /** Move the UI cursor right. */
-  UI_RIGHT = 33,
+  UI_RIGHT = 36,
 }
 
 /**
@@ -185,7 +191,7 @@ export default class RogueEnv {
             phase.handleCommand(Command.RUN, 0);
           } else if (action === RogueAction.BAG) {
             phase.handleCommand(Command.BALL, 0);
-          } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
+          } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_6) {
             phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
           }
         } else if (phase?.constructor.name === "SelectTargetPhase") {
@@ -307,7 +313,7 @@ export default class RogueEnv {
       if (!pokemon.isTrapped()) {
         actions.push(RogueAction.RUN);
         const party = this.scene.getPlayerParty();
-        for (let i = 0; i < Math.min(3, party.length); i++) {
+        for (let i = 0; i < Math.min(6, party.length); i++) {
           const p = party[i];
           if (p.hp > 0 && !p.isActive(true)) {
             actions.push((RogueAction.SWITCH_1 + i) as RogueAction);

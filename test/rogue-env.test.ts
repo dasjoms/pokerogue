@@ -297,7 +297,7 @@ describe("rogue-env parity", () => {
         phase.handleCommand(Command.BALL, 0);
       } else if (action === RogueAction.RUN) {
         phase.handleCommand(Command.RUN, 0);
-      } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
+      } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_6) {
         phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
       }
     }
@@ -349,7 +349,7 @@ describe("rogue-env parity", () => {
       if (!pokemon.isTrapped()) {
         actions.push(RogueAction.RUN);
         const party = scene.getPlayerParty();
-        for (let i = 0; i < Math.min(3, party.length); i++) {
+        for (let i = 0; i < Math.min(6, party.length); i++) {
           const p = party[i];
           if (p.hp > 0 && !p.isActive(true)) {
             actions.push((RogueAction.SWITCH_1 + i) as RogueAction);
