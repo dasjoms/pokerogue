@@ -88,6 +88,16 @@ export enum RogueAction {
   UI_LEFT = 35,
   /** Move the UI cursor right. */
   UI_RIGHT = 36,
+  /** Reject learning the offered move. */
+  LEARN_REJECT = 37,
+  /** Replace the first move when learning a new one. */
+  LEARN_REPLACE_1 = 38,
+  /** Replace the second move when learning a new one. */
+  LEARN_REPLACE_2 = 39,
+  /** Replace the third move when learning a new one. */
+  LEARN_REPLACE_3 = 40,
+  /** Replace the fourth move when learning a new one. */
+  LEARN_REPLACE_4 = 41,
 }
 
 /**
@@ -205,6 +215,19 @@ export default class RogueEnv {
           const cb = handler?.selectCallback as ((slot: number, option: number) => void) | undefined;
           if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
             cb(action - RogueAction.SLOT_1, 1);
+          }
+        } else if (phase?.constructor.name === "LearnMovePhase") {
+          const pokemon = phase.getPokemon?.() as any;
+          if (action === RogueAction.LEARN_REJECT) {
+            /* no-op */
+          } else if (
+            action >= RogueAction.LEARN_REPLACE_1 &&
+            action <= RogueAction.LEARN_REPLACE_4 &&
+            pokemon
+          ) {
+            const idx = action - RogueAction.LEARN_REPLACE_1;
+            const moveId = (phase as any).moveId;
+            pokemon.setMove(idx, moveId);
           }
         } else if (
           phase?.constructor.name === "SelectModifierPhase" ||
@@ -335,6 +358,17 @@ export default class RogueEnv {
         if (p.hp > 0 && !p.isActive(true)) {
           actions.push((RogueAction.SLOT_1 + i) as RogueAction);
         }
+      }
+    } else if (phase?.constructor.name === "LearnMovePhase") {
+      const pokemon = phase.getPokemon?.() as any;
+      if (pokemon?.getMoveset().length >= 4) {
+        actions.push(
+          RogueAction.LEARN_REJECT,
+          RogueAction.LEARN_REPLACE_1,
+          RogueAction.LEARN_REPLACE_2,
+          RogueAction.LEARN_REPLACE_3,
+          RogueAction.LEARN_REPLACE_4,
+        );
       }
     } else if (
       phase?.constructor.name === "SelectModifierPhase" ||
