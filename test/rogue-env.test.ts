@@ -36,6 +36,9 @@ describe("rogue-env serialization", () => {
     expect(Array.isArray(state.playerParty[0].statStages)).toBe(true);
     expect(state.playerParty[0]).toHaveProperty("battlerTags");
     expect(Array.isArray(state.playerParty[0].battlerTags)).toBe(true);
+    expect(state.playerParty[0]).toHaveProperty("ability");
+    expect(state.playerParty[0]).toHaveProperty("nature");
+    expect(state).toHaveProperty("schemaVersion");
     expect(state).toHaveProperty("weather");
     expect(state).toHaveProperty("terrain");
     expect(state).toHaveProperty("terrainTurns");
