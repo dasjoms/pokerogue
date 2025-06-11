@@ -9,6 +9,7 @@ import type { TransitionRecord } from "#env/transition-logger";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
+import { TerastallizeAccessModifier } from "#app/modifier/modifier";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -27,6 +28,24 @@ export enum RogueAction {
   SWITCH_2 = 6,
   /** Switch to the third party Pokémon. */
   SWITCH_3 = 7,
+  /** Throw the first Poké Ball type. */
+  BALL_1 = 8,
+  /** Throw the second Poké Ball type. */
+  BALL_2 = 9,
+  /** Throw the third Poké Ball type. */
+  BALL_3 = 10,
+  /** Throw the fourth Poké Ball type. */
+  BALL_4 = 11,
+  /** Throw the fifth Poké Ball type. */
+  BALL_5 = 12,
+  /** Terastallize and use the first move. */
+  TERA_1 = 13,
+  /** Terastallize and use the second move. */
+  TERA_2 = 14,
+  /** Terastallize and use the third move. */
+  TERA_3 = 15,
+  /** Terastallize and use the fourth move. */
+  TERA_4 = 16,
 }
 
 /**
@@ -79,11 +98,7 @@ export default class RogueEnv {
     this.scene.setSeed(this.seed);
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
-    initSceneWithoutEncounterPhase(this.scene, [
-      SpeciesId.SQUIRTLE,
-      SpeciesId.BULBASAUR,
-      SpeciesId.CHARMANDER,
-    ]);
+    initSceneWithoutEncounterPhase(this.scene, [SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
     this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.clearAllPhases();
     this.scene.phaseManager.pushNew("TurnInitPhase");
@@ -104,6 +119,10 @@ export default class RogueEnv {
       if (phase?.handleCommand) {
         if (action <= RogueAction.FIGHT_4) {
           phase.handleCommand(Command.FIGHT, action);
+        } else if (action >= RogueAction.TERA_1 && action <= RogueAction.TERA_4) {
+          phase.handleCommand(Command.TERA, action - RogueAction.TERA_1);
+        } else if (action >= RogueAction.BALL_1 && action <= RogueAction.BALL_5) {
+          phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
         } else if (action === RogueAction.RUN) {
           phase.handleCommand(Command.RUN, 0);
         } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
@@ -146,6 +165,28 @@ export default class RogueEnv {
       for (let i = 0; i < Math.min(4, moves.length); i++) {
         if (pokemon.trySelectMove(i)) {
           actions.push(RogueAction.FIGHT_1 + i);
+        }
+      }
+      const pokeballs = Object.values(this.scene.pokeballCounts ?? {});
+      for (let i = 0; i < Math.min(5, pokeballs.length); i++) {
+        if (pokeballs[i] > 0) {
+          actions.push((RogueAction.BALL_1 + i) as RogueAction);
+        }
+      }
+      const fieldIndex = phase.getFieldIndex();
+      const activePokemon = this.scene.getField()[fieldIndex];
+      const hasTeraMod = this.scene.getModifiers(TerastallizeAccessModifier).length > 0;
+      const isBlockedForm =
+        activePokemon.isMega() || activePokemon.isMax() || activePokemon.hasSpecies(SpeciesId.NECROZMA, "ultra");
+      const currentTeras = this.scene.arena.playerTerasUsed;
+      const plannedTera =
+        this.scene.currentBattle.preTurnCommands[0]?.command === Command.TERA && fieldIndex > 0 ? 1 : 0;
+      const canTera = hasTeraMod && !isBlockedForm && currentTeras + plannedTera < 1;
+      if (canTera) {
+        for (let i = 0; i < Math.min(4, moves.length); i++) {
+          if (pokemon.trySelectMove(i)) {
+            actions.push((RogueAction.TERA_1 + i) as RogueAction);
+          }
         }
       }
       if (!pokemon.isTrapped()) {
