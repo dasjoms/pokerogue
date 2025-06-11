@@ -66,6 +66,8 @@ export enum RogueAction {
   SLOT_5 = 25,
   /** Choose the sixth party slot when switching. */
   SLOT_6 = 26,
+  /** Open the bag to use a Poké Ball. */
+  BAG = 27,
 }
 
 /**
@@ -145,6 +147,8 @@ export default class RogueEnv {
           phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
         } else if (action === RogueAction.RUN) {
           phase.handleCommand(Command.RUN, 0);
+        } else if (action === RogueAction.BAG) {
+          phase.handleCommand(Command.BALL, 0);
         } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
           phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
         }
@@ -200,6 +204,9 @@ export default class RogueEnv {
         }
       }
       const pokeballs = Object.values(this.scene.pokeballCounts ?? {});
+      if (pokeballs.some(c => c > 0)) {
+        actions.push(RogueAction.BAG);
+      }
       for (let i = 0; i < Math.min(5, pokeballs.length); i++) {
         if (pokeballs[i] > 0) {
           actions.push((RogueAction.BALL_1 + i) as RogueAction);
