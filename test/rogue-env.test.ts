@@ -356,3 +356,25 @@ describe("rogue-env parity", () => {
     expect(states).toEqual(envStates);
   });
 });
+
+describe("benchmark utility", () => {
+  it("should measure steps per second", async () => {
+    vi.doMock("#env/rogue-env", () => {
+      const mockStep = vi.fn();
+      return {
+        default: class {
+          constructor() {}
+          reset() {}
+          getAvailableActions() { return [0]; }
+          step() { mockStep(); }
+        },
+        RogueAction: { FIGHT_1: 0 },
+      };
+    });
+    const { benchmark } = await import("#env");
+    const result = await benchmark(3, "seed");
+    expect(result.steps).toBe(3);
+    expect(result.sps).toBeGreaterThan(0);
+    vi.resetModules();
+  });
+});

@@ -67,6 +67,14 @@ You can also provide optional environment variables:
 
 The optional first argument specifies how many `step()` calls to run (defaults to the value of `ROGUE_STEPS` or 2). If a path is provided as the second argument, or via `ROGUE_LOG_PATH`, the transition log is written there; otherwise it prints to STDOUT.
 
+To benchmark environment performance, run:
+
+```bash
+npm run env:bench -- 1000
+```
+
+This executes a given number of steps and reports the steps per second. `ROGUE_BENCH_STEPS` and `ROGUE_SEED` can also be provided as environment variables.
+
 
 ## 🪧 To Do
 
