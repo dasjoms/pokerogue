@@ -5,6 +5,7 @@ import { BattleType } from "#enums/battle-type";
 import { BiomeId } from "#enums/biome-id";
 import { ArenaTagSide } from "#enums/arena-tag-side";
 import { ArenaTagType } from "#enums/arena-tag-type";
+import { BattlerTagType } from "#enums/battler-tag-type";
 import { getPlayerShopModifierTypeOptionsForWave } from "#app/modifier/modifier-type";
 import { HealShopCostModifier } from "#app/modifier/modifier";
 import { NumberHolder } from "#app/utils/common";
@@ -20,6 +21,8 @@ export interface SerializedPokemon {
   items: string[];
   /** Array of seven in-battle stat stage values. */
   statStages: number[];
+  /** Active volatile battler tags with remaining turns. */
+  battlerTags: { type: BattlerTagType; turns: number }[];
   /** Whether this Pokémon is currently active on the field. */
   active: boolean;
   moves: { id: number; type: number; power: number; pp: number; maxPp: number }[];
@@ -71,7 +74,8 @@ function serializePokemon(p: Pokemon): SerializedPokemon {
     status: p.status?.effect ?? StatusEffect.NONE,
     items: p.getHeldItems().map(i => i.type.id),
     statStages: p.getStatStages(),
-  active: p.isActive(true),
+    battlerTags: p.summonData.tags.map(t => ({ type: t.tagType, turns: t.turnCount })),
+    active: p.isActive(true),
     moves: p.getMoveset().map(m => ({
       id: m.moveId,
       type: m.getMove().type,
