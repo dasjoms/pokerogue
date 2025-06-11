@@ -10,6 +10,9 @@ import { getPlayerShopModifierTypeOptionsForWave } from "#app/modifier/modifier-
 import { HealShopCostModifier } from "#app/modifier/modifier";
 import { NumberHolder } from "#app/utils/common";
 
+/** Current version of the serialized state schema. */
+export const STATE_SCHEMA_VERSION = 1;
+
 export interface SerializedPokemon {
   species: number;
   level: number;
@@ -25,10 +28,16 @@ export interface SerializedPokemon {
   battlerTags: { type: BattlerTagType; turns: number }[];
   /** Whether this Pokémon is currently active on the field. */
   active: boolean;
+  /** Current ability identifier. */
+  ability: number;
+  /** Current nature identifier. */
+  nature: number;
   moves: { id: number; type: number; power: number; pp: number; maxPp: number }[];
 }
 
 export interface SerializedState {
+  /** Schema version for compatibility. */
+  schemaVersion: number;
   phase: string | undefined;
   turn: number;
   playerParty: SerializedPokemon[];
@@ -83,6 +92,8 @@ function serializePokemon(p: Pokemon): SerializedPokemon {
     statStages: p.getStatStages(),
     battlerTags: p.summonData.tags.map(t => ({ type: t.tagType, turns: t.turnCount })),
     active: p.isActive(true),
+    ability: p.getAbility(true).id,
+    nature: p.getNature(),
     moves: p.getMoveset().map(m => ({
       id: m.moveId,
       type: m.getMove().type,
@@ -103,6 +114,7 @@ export default function serializeState(scene: BattleScene): SerializedState {
     shopOptions = getPlayerShopModifierTypeOptionsForWave(scene.currentBattle.waveIndex, holder.value).map(o => ({ id: o.type.id, cost: o.cost }));
   }
   return {
+    schemaVersion: STATE_SCHEMA_VERSION,
     phase: phaseName,
     turn: scene.currentBattle?.turn ?? 0,
     playerParty: scene.getPlayerParty().map(serializePokemon),
