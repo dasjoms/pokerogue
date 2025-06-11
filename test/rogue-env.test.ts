@@ -227,6 +227,16 @@ describe("rogue-env progression", () => {
     env.step(RogueAction.UI_ACTION);
     expect(spy).toHaveBeenCalled();
   });
+
+  it("should expose ui actions during challenge selection", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const spy = vi.fn();
+    env.scene.phaseManager.currentPhase = { constructor: { name: "SelectChallengePhase" } } as any;
+    env.scene.ui.getHandler = vi.fn().mockReturnValue({ processInput: spy } as any);
+    env.step(RogueAction.UI_ACTION);
+    expect(spy).toHaveBeenCalled();
+  });
 });
 
 describe("rogue-env termination", () => {
