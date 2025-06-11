@@ -54,6 +54,30 @@ describe("rogue-env serialization", () => {
     expect(nextState.turn).toBeGreaterThanOrEqual(state.turn);
   });
 
+  it("should include bag action when balls are available", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const actions = env.getAvailableActions();
+    if (actions.includes(RogueAction.BALL_1)) {
+      expect(actions).toContain(RogueAction.BAG);
+    }
+  });
+
+  it("bag action should act like using the first ball", () => {
+    const seed = "bag-seed";
+    const env1 = new RogueEnv(seed);
+    env1.reset();
+    env1.step(RogueAction.BAG);
+    const bagState = env1.getState();
+
+    const env2 = new RogueEnv(seed);
+    env2.reset();
+    env2.step(RogueAction.BALL_1);
+    const ballState = env2.getState();
+
+    expect(bagState).toEqual(ballState);
+  });
+
   it("should initialize with standard starters", () => {
     const env = new RogueEnv();
     env.reset();
@@ -156,6 +180,8 @@ describe("rogue-env parity", () => {
         phase.handleCommand(Command.TERA, action - RogueAction.TERA_1);
       } else if (action >= RogueAction.BALL_1 && action <= RogueAction.BALL_5) {
         phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
+      } else if (action === RogueAction.BAG) {
+        phase.handleCommand(Command.BALL, 0);
       } else if (action === RogueAction.RUN) {
         phase.handleCommand(Command.RUN, 0);
       } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
@@ -184,6 +210,9 @@ describe("rogue-env parity", () => {
         }
       }
       const pokeballs = Object.values(scene.pokeballCounts ?? {});
+      if (pokeballs.some(c => c > 0)) {
+        actions.push(RogueAction.BAG);
+      }
       for (let i = 0; i < Math.min(5, pokeballs.length); i++) {
         if (pokeballs[i] > 0) {
           actions.push((RogueAction.BALL_1 + i) as RogueAction);
