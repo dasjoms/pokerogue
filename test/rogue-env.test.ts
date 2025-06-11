@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { RogueEnv, RogueAction, TransitionLogger, computeStepReward } from "#env";
+import { RogueEnv, RogueAction, TransitionLogger, computeStepReward, replayTransitions } from "#env";
 import Phaser from "phaser";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import BattleScene from "#app/battle-scene";
@@ -144,6 +144,24 @@ describe("rogue-env logging", () => {
     expect(logger2.getRecords()).toEqual(env.logger.getRecords());
 
     await fs.unlink(file);
+  });
+});
+
+describe("transition replay", () => {
+  it("should reproduce recorded transitions", async () => {
+    const seed = "replay-seed";
+    const env = new RogueEnv(seed);
+    const logger = new TransitionLogger();
+    env.logger = logger;
+    env.reset();
+    env.step(RogueAction.FIGHT_1);
+    env.step(RogueAction.FIGHT_1);
+
+    const records = logger.getRecords();
+    const result = replayTransitions(records, seed);
+
+    expect(result.deterministic).toBe(true);
+    expect(result.records).toEqual(records);
   });
 });
 

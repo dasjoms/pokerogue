@@ -21,7 +21,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 
 - [x] Provide helper functions to compute rewards after each step (e.g. damage dealt, fainted Pokémon, wave cleared).
 - [x] Store `(state, action, reward, next_state, done)` tuples using `TransitionLogger` with optional compression or rotation.
-- Add utilities to replay logged transitions to verify determinism.
+- [x] Add utilities to replay logged transitions to verify determinism.
 
 ## 5. Performance improvements
 - Skip animations and audio entirely when `headless` to maximise simulation speed.
