@@ -22,7 +22,7 @@ export interface SerializedPokemon {
   statStages: number[];
   /** Whether this Pokémon is currently active on the field. */
   active: boolean;
-  moves: { id: number; pp: number; maxPp: number }[];
+  moves: { id: number; type: number; power: number; pp: number; maxPp: number }[];
 }
 
 export interface SerializedState {
@@ -71,8 +71,14 @@ function serializePokemon(p: Pokemon): SerializedPokemon {
     status: p.status?.effect ?? StatusEffect.NONE,
     items: p.getHeldItems().map(i => i.type.id),
     statStages: p.getStatStages(),
-    active: p.isActive(true),
-    moves: p.getMoveset().map(m => ({ id: m.moveId, pp: m.getMovePp() - m.ppUsed, maxPp: m.getMovePp() })),
+  active: p.isActive(true),
+    moves: p.getMoveset().map(m => ({
+      id: m.moveId,
+      type: m.getMove().type,
+      power: m.getMove().power,
+      pp: m.getMovePp() - m.ppUsed,
+      maxPp: m.getMovePp(),
+    })),
   };
 }
 

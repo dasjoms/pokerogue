@@ -24,6 +24,10 @@ describe("rogue-env serialization", () => {
     expect(Array.isArray(state.enemyParty)).toBe(true);
     expect(state.playerParty[0]).toHaveProperty("species");
     expect(state.playerParty[0]).toHaveProperty("moves");
+    if (state.playerParty[0].moves.length > 0) {
+      expect(state.playerParty[0].moves[0]).toHaveProperty("type");
+      expect(state.playerParty[0].moves[0]).toHaveProperty("power");
+    }
     expect(state.playerParty[0]).toHaveProperty("status");
     expect(state.playerParty[0]).toHaveProperty("items");
     expect(Array.isArray(state.playerParty[0].items)).toBe(true);
