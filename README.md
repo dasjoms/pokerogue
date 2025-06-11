@@ -75,6 +75,14 @@ npm run env:bench -- 1000
 
 This executes a given number of steps and reports the steps per second. `ROGUE_BENCH_STEPS` and `ROGUE_SEED` can also be provided as environment variables.
 
+To run a simple training session that records transitions, use:
+
+```bash
+npm run env:train -- 10000 my-log.json.gz
+```
+
+`ROGUE_TRAIN_STEPS`, `ROGUE_LOG_PATH` and `ROGUE_SEED` can also be provided as environment variables. The resulting log file is gzip compressed.
+
 
 ## 🪧 To Do
 
