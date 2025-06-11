@@ -83,6 +83,13 @@ npm run env:train -- 10000 my-log.json.gz
 
 `ROGUE_TRAIN_STEPS`, `ROGUE_LOG_PATH` and `ROGUE_SEED` can also be provided as environment variables. The resulting log file is gzip compressed.
 
+For a more advanced example using a neural network agent, see the [Reinforcement Learning Guide](./docs/rl-guide.md) and run:
+
+```bash
+VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts
+```
+
+
 
 ## 🪧 To Do
 
