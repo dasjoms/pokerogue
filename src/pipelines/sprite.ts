@@ -5,8 +5,19 @@ import Trainer from "#app/field/trainer";
 import { globalScene } from "#app/global-scene";
 import { rgbHexToRgba } from "#app/utils/common";
 import FieldSpritePipeline from "./field-sprite";
-import spriteFragShader from "./glsl/spriteFragShader.frag?raw";
-import spriteVertShader from "./glsl/spriteShader.vert?raw";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const dir = dirname(fileURLToPath(import.meta.url));
+const spriteFragShader = readFileSync(
+  join(dir, "glsl/spriteFragShader.frag"),
+  "utf8",
+);
+const spriteVertShader = readFileSync(
+  join(dir, "glsl/spriteShader.vert"),
+  "utf8",
+);
 
 export default class SpritePipeline extends FieldSpritePipeline {
   private _tone: number[];

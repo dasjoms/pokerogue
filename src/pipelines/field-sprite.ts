@@ -1,8 +1,19 @@
 import { globalScene } from "#app/global-scene";
 import { TerrainType, getTerrainColor } from "../data/terrain";
 import { getCurrentTime } from "#app/utils/common";
-import fieldSpriteFragShader from "./glsl/fieldSpriteFragShader.frag?raw";
-import spriteVertShader from "./glsl/spriteShader.vert?raw";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const dir = dirname(fileURLToPath(import.meta.url));
+const fieldSpriteFragShader = readFileSync(
+  join(dir, "glsl/fieldSpriteFragShader.frag"),
+  "utf8",
+);
+const spriteVertShader = readFileSync(
+  join(dir, "glsl/spriteShader.vert"),
+  "utf8",
+);
 
 export default class FieldSpritePipeline extends Phaser.Renderer.WebGL.Pipelines.MultiPipeline {
   constructor(game: Phaser.Game, config?: Phaser.Types.Renderer.WebGL.WebGLPipelineConfig) {
