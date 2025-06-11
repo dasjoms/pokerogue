@@ -3,9 +3,9 @@
 This file tracks outstanding work required to convert PokéRogue into a stable headless environment usable for reinforcement learning.  Many basics are already implemented (`RogueEnv` wrapper, headless flag, serialization and parity tests).  The remaining tasks are grouped below in a suggested development order.
 
 ## 1. Finalise headless environment module
-- Move `RogueEnv` and `TransitionLogger` into their own folder or package so external training scripts can import them cleanly.
-- Provide a simple CLI entry point that instantiates `RogueEnv`, runs a fixed number of steps and writes the log to disk.
-- Document environment variables (`VITE_HEADLESS`, seed selection, log path).
+- [x] Move `RogueEnv` and `TransitionLogger` into their own folder or package so external training scripts can import them cleanly.
+- [x] Provide a simple CLI entry point that instantiates `RogueEnv`, runs a fixed number of steps and writes the log to disk.
+- [x] Document environment variables (`VITE_HEADLESS`, seed selection, log path).
 
 ## 2. Expand the action space
 - Add support for item usage, terastallization, capturing and other command types.
