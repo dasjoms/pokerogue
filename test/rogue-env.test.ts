@@ -37,6 +37,10 @@ describe("rogue-env serialization", () => {
     expect(Array.isArray(state.playerParty[0].battlerTags)).toBe(true);
     expect(state).toHaveProperty("weather");
     expect(state).toHaveProperty("terrain");
+    expect(state).toHaveProperty("terrainTurns");
+    expect(typeof state.terrainTurns).toBe("number");
+    expect(state).toHaveProperty("wave");
+    expect(typeof state.wave).toBe("number");
     expect(state).toHaveProperty("playerActive");
     expect(state).toHaveProperty("enemyActive");
     expect(Array.isArray(state.playerActive)).toBe(true);
@@ -53,6 +57,9 @@ describe("rogue-env serialization", () => {
     expect(state).toHaveProperty("playerTerasUsed");
     expect(state).toHaveProperty("arenaTags");
     expect(Array.isArray(state.arenaTags)).toBe(true);
+    if (state.arenaTags.length > 0) {
+      expect(state.arenaTags[0]).toHaveProperty("layers");
+    }
     expect(state.shopOptions).toBeUndefined();
     expect(Array.isArray(state.availableActions)).toBe(true);
     expect(state.availableActions).toEqual(env.getAvailableActions());

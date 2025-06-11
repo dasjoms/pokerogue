@@ -41,6 +41,8 @@ export interface SerializedState {
   weather: number;
   /** Current terrain effect in the arena. */
   terrain: number;
+  /** Remaining turns on the active terrain effect. */
+  terrainTurns: number;
   /** Current wave number. */
   wave: number;
   /** Player's available money. */
@@ -54,7 +56,12 @@ export interface SerializedState {
   /** Number of terastallizations used by the player this arena. */
   playerTerasUsed: number;
   /** Active arena tags influencing the field. */
-  arenaTags: { type: ArenaTagType; side: ArenaTagSide; turns: number }[];
+  arenaTags: {
+    type: ArenaTagType;
+    side: ArenaTagSide;
+    turns: number;
+    layers?: number;
+  }[];
   /** Remaining Poké Ball counts by type. */
   pokeballCounts: { [type: number]: number };
   /** Active player modifiers with stack counts. */
@@ -104,6 +111,7 @@ export default function serializeState(scene: BattleScene): SerializedState {
     enemyActive: scene.getEnemyField().map(p => scene.getEnemyParty().indexOf(p)),
     weather: scene.arena.weather?.weatherType ?? 0,
     terrain: scene.arena.terrain?.terrainType ?? 0,
+    terrainTurns: scene.arena.terrain?.turnsLeft ?? 0,
     wave: scene.currentBattle?.waveIndex ?? 0,
     money: scene.money ?? 0,
     biome: scene.arena.biomeType as BiomeId,
@@ -113,7 +121,8 @@ export default function serializeState(scene: BattleScene): SerializedState {
     arenaTags: scene.arena.tags.map(t => ({
       type: t.tagType,
       side: t.side,
-      turns: t.turnCount,
+      turns: (t as any).turnCount ?? 0,
+      layers: (t as any).layers,
     })),
     pokeballCounts: { ...scene.pokeballCounts },
     playerModifiers: scene.modifiers.map(m => ({ id: m.type.id, stack: m.stackCount })),
