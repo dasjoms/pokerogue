@@ -1,6 +1,7 @@
 import type { SerializedState } from "#app/utils/serialize";
 import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
+import { gzipSync, gunzipSync } from "node:zlib";
 
 export interface TransitionRecord {
   state: SerializedState;
@@ -32,9 +33,15 @@ export default class TransitionLogger {
   /**
    * Write the current log to a file in JSON format.
    */
-  async saveToFile(path: string): Promise<void> {
+  async saveToFile(path: string, compress = false): Promise<void> {
     const file = resolve(path);
-    await fs.writeFile(file, this.toJSON(), "utf8");
+    const data = this.toJSON();
+    if (compress) {
+      const buf = gzipSync(data);
+      await fs.writeFile(file, buf);
+    } else {
+      await fs.writeFile(file, data, "utf8");
+    }
   }
 
   /**
@@ -42,7 +49,13 @@ export default class TransitionLogger {
    */
   async loadFromFile(path: string): Promise<void> {
     const file = resolve(path);
-    const text = await fs.readFile(file, "utf8");
+    const buf = await fs.readFile(file);
+    let text: string;
+    try {
+      text = gunzipSync(buf).toString("utf8");
+    } catch {
+      text = buf.toString("utf8");
+    }
     this.records = JSON.parse(text) as TransitionRecord[];
   }
 }
