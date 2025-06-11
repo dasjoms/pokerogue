@@ -200,7 +200,11 @@ export default class RogueEnv {
           if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
             cb(action - RogueAction.SLOT_1, 1);
           }
-        } else if (phase?.constructor.name === "SelectModifierPhase" || phase?.constructor.name === "SelectBiomePhase") {
+        } else if (
+          phase?.constructor.name === "SelectModifierPhase" ||
+          phase?.constructor.name === "SelectBiomePhase" ||
+          phase?.constructor.name === "SelectChallengePhase"
+        ) {
           const handler: any = this.scene.ui.getHandler();
           const buttonMap: Record<RogueAction, Button> = {
             [RogueAction.UI_ACTION]: Button.ACTION,
@@ -326,7 +330,10 @@ export default class RogueEnv {
           actions.push((RogueAction.SLOT_1 + i) as RogueAction);
         }
       }
-    } else if (phase?.constructor.name === "SelectModifierPhase") {
+    } else if (
+      phase?.constructor.name === "SelectModifierPhase" ||
+      phase?.constructor.name === "SelectChallengePhase"
+    ) {
       actions.push(
         RogueAction.UI_ACTION,
         RogueAction.UI_CANCEL,
