@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { RogueEnv, RogueAction, TransitionLogger, computeStepReward, replayTransitions } from "#env";
+import { MoveId } from "#enums/move-id";
 import Phaser from "phaser";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import BattleScene from "#app/battle-scene";
@@ -236,6 +237,43 @@ describe("rogue-env progression", () => {
     env.scene.ui.getHandler = vi.fn().mockReturnValue({ processInput: spy } as any);
     env.step(RogueAction.UI_ACTION);
     expect(spy).toHaveBeenCalled();
+  });
+
+  it("should handle learn move rejection", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const p = env.scene.getPlayerParty()[0];
+    for (let i = 0; i < 4; i++) {
+      p.setMove(i, MoveId.SPLASH);
+    }
+    env.scene.phaseManager.currentPhase = {
+      constructor: { name: "LearnMovePhase" },
+      getPokemon: () => p,
+      moveId: MoveId.TACKLE,
+    } as any;
+    env.step(RogueAction.LEARN_REJECT);
+    expect(p.getMoveset().map(m => m.moveId)).toEqual([
+      MoveId.SPLASH,
+      MoveId.SPLASH,
+      MoveId.SPLASH,
+      MoveId.SPLASH,
+    ]);
+  });
+
+  it("should replace selected move during learn move phase", () => {
+    const env = new RogueEnv();
+    env.reset();
+    const p = env.scene.getPlayerParty()[0];
+    for (let i = 0; i < 4; i++) {
+      p.setMove(i, MoveId.SPLASH);
+    }
+    env.scene.phaseManager.currentPhase = {
+      constructor: { name: "LearnMovePhase" },
+      getPokemon: () => p,
+      moveId: MoveId.TACKLE,
+    } as any;
+    env.step(RogueAction.LEARN_REPLACE_2);
+    expect(p.getMoveset()[1].moveId).toBe(MoveId.TACKLE);
   });
 });
 
