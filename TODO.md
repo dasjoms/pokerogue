@@ -21,6 +21,8 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Capture held items, stat boosts and volatile statuses for both player and enemy.
 - [x] Expose arena features like hazards, terrain turns and wave index in a stable format.
 - Version the JSON schema so training data remains usable as the format evolves.
+- Include each Pokémon's ability and nature in `SerializedState` so replays can
+  fully restore mid-run state.
 
 ## 4. Utility
 - [x] Provide helper functions to compute rewards after each step (e.g. damage dealt, fainted Pokémon, wave cleared).
