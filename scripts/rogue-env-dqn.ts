@@ -1,3 +1,4 @@
+import "./headless-globals";
 import { RogueEnv, type RogueAction } from "#env";
 import type { SerializedState } from "#app/utils/serialize";
 import { tensor, train, layers, sequential, type LayersModel, dispose } from "@tensorflow/tfjs-node";
