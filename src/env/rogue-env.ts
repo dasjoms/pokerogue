@@ -100,6 +100,9 @@ export default class RogueEnv {
   /** Optional logger for transition data. */
   public logger?: TransitionLogger;
 
+  /** Whether the current run has finished. */
+  public terminated = false;
+
   /** The active {@link BattleScene}. */
   public scene: BattleScene;
 
@@ -129,6 +132,7 @@ export default class RogueEnv {
    * Equivalent to starting a new run.
    */
   reset(seed = this.seed): void {
+    this.terminated = false;
     this.seed = seed;
     this.scene.reset(false, true);
     this.scene.setSeed(this.seed);
@@ -139,6 +143,13 @@ export default class RogueEnv {
     this.scene.phaseManager.clearAllPhases();
     this.scene.phaseManager.pushNew("TurnInitPhase");
     this.scene.phaseManager.shiftPhase();
+  }
+
+  /**
+   * Manually end the current run without progressing phases.
+   */
+  terminate(): void {
+    this.terminated = true;
   }
 
   /**
@@ -154,6 +165,9 @@ export default class RogueEnv {
     done = false,
     fastForward = 1,
   ): number {
+    if (this.terminated) {
+      return 0;
+    }
     let total = 0;
     for (let i = 0; i < fastForward; i++) {
       const prevState = this.getState();
@@ -215,6 +229,12 @@ export default class RogueEnv {
       }
 
       const nextState = this.getState();
+      if (
+        nextState.phase === "VictoryPhase" ||
+        nextState.phase === "GameOverPhase"
+      ) {
+        this.terminated = true;
+      }
       const computed = computeStepReward(prevState, nextState);
       const stepReward = reward === undefined ? computed : reward;
 
@@ -224,12 +244,18 @@ export default class RogueEnv {
           action: typeof action === "number" ? action : -1,
           reward: stepReward,
           nextState,
-          done: done && i === fastForward - 1,
+          done:
+            (done && i === fastForward - 1) ||
+            this.terminated,
         };
         this.logger.log(record);
       }
 
       total += stepReward;
+
+      if (this.terminated) {
+        break;
+      }
     }
 
     return total;
