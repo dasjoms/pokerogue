@@ -12,7 +12,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Allow selecting a target when a move or switch requires it and handling of multi-turn moves.
 - [x] Expose high level commands such as `Bag` and `Run` as discrete actions.
 - [x] Update tests to cover the new actions and ensure backward compatibility.
-- Extend switching commands to cover party slots beyond the first three.
+- [x] Extend switching commands to cover party slots beyond the first three.
 - Provide actions or automation for `LearnMovePhase` so move replacement can be handled headlessly.
 - Ensure hatching and evolution phases progress without manual input.
 
