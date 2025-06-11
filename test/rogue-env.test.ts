@@ -8,6 +8,7 @@ import GameWrapper from "#test/testUtils/gameWrapper";
 import BattleScene from "#app/battle-scene";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
+import { TerastallizeAccessModifier } from "#app/modifier/modifier";
 import serializeState from "#app/utils/serialize";
 import { Command } from "#enums/command";
 import { CommandPhase } from "#app/phases/command-phase";
@@ -57,11 +58,7 @@ describe("rogue-env serialization", () => {
     const env = new RogueEnv();
     env.reset();
     const party = env.getState().playerParty.map(p => p.species);
-    expect(party).toEqual([
-      SpeciesId.SQUIRTLE,
-      SpeciesId.BULBASAUR,
-      SpeciesId.CHARMANDER,
-    ]);
+    expect(party).toEqual([SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
   });
 });
 
@@ -155,6 +152,10 @@ describe("rogue-env parity", () => {
     if (phase?.handleCommand) {
       if (action <= RogueAction.FIGHT_4) {
         phase.handleCommand(Command.FIGHT, action);
+      } else if (action >= RogueAction.TERA_1 && action <= RogueAction.TERA_4) {
+        phase.handleCommand(Command.TERA, action - RogueAction.TERA_1);
+      } else if (action >= RogueAction.BALL_1 && action <= RogueAction.BALL_5) {
+        phase.handleCommand(Command.BALL, action - RogueAction.BALL_1);
       } else if (action === RogueAction.RUN) {
         phase.handleCommand(Command.RUN, 0);
       } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
@@ -180,6 +181,27 @@ describe("rogue-env parity", () => {
       for (let i = 0; i < Math.min(4, moves.length); i++) {
         if (pokemon.trySelectMove(i)) {
           actions.push(RogueAction.FIGHT_1 + i);
+        }
+      }
+      const pokeballs = Object.values(scene.pokeballCounts ?? {});
+      for (let i = 0; i < Math.min(5, pokeballs.length); i++) {
+        if (pokeballs[i] > 0) {
+          actions.push((RogueAction.BALL_1 + i) as RogueAction);
+        }
+      }
+      const fieldIndex = phase.getFieldIndex();
+      const activePokemon = scene.getField()[fieldIndex];
+      const hasTeraMod = scene.getModifiers(TerastallizeAccessModifier).length > 0;
+      const isBlockedForm =
+        activePokemon.isMega() || activePokemon.isMax() || activePokemon.hasSpecies(SpeciesId.NECROZMA, "ultra");
+      const currentTeras = scene.arena.playerTerasUsed;
+      const plannedTera = scene.currentBattle.preTurnCommands[0]?.command === Command.TERA && fieldIndex > 0 ? 1 : 0;
+      const canTera = hasTeraMod && !isBlockedForm && currentTeras + plannedTera < 1;
+      if (canTera) {
+        for (let i = 0; i < Math.min(4, moves.length); i++) {
+          if (pokemon.trySelectMove(i)) {
+            actions.push((RogueAction.TERA_1 + i) as RogueAction);
+          }
         }
       }
       if (!pokemon.isTrapped()) {
@@ -229,11 +251,7 @@ describe("rogue-env parity", () => {
     scene.setSeed(seed);
     scene.resetSeed();
     scene.enableTutorials = false;
-    initSceneWithoutEncounterPhase(scene, [
-      SpeciesId.SQUIRTLE,
-      SpeciesId.BULBASAUR,
-      SpeciesId.CHARMANDER,
-    ]);
+    initSceneWithoutEncounterPhase(scene, [SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
     scene.currentBattle.incrementTurn();
     scene.phaseManager.clearAllPhases();
     scene.phaseManager.pushNew("TurnInitPhase");
@@ -248,4 +266,3 @@ describe("rogue-env parity", () => {
     expect(states).toEqual(envStates);
   });
 });
-
