@@ -12,6 +12,8 @@ import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
 import { TerastallizeAccessModifier } from "#app/modifier/modifier";
+import { LearnMoveSituation } from "#enums/learn-move-situation";
+import { EVOLVE_MOVE } from "#app/data/balance/pokemon-level-moves";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -154,6 +156,7 @@ export default class RogueEnv {
     this.scene.setSeed(this.seed);
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
+    this.scene.eggSkipPreference = 2;
     initSceneWithoutEncounterPhase(this.scene, [SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
     this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.clearAllPhases();
@@ -250,6 +253,39 @@ export default class RogueEnv {
         }
       } else if (typeof action === "function") {
         action(this.scene);
+      }
+
+      const autoPhase: any = this.scene.phaseManager.getCurrentPhase();
+      if (autoPhase?.constructor?.name === "EggHatchPhase" || autoPhase?.constructor?.name === "EggSummaryPhase") {
+        if (autoPhase.constructor.name === "EggHatchPhase") {
+          const lapse = autoPhase.eggLapsePhase;
+          lapse?.hatchEggSilently?.(autoPhase.egg);
+        }
+        autoPhase.end?.();
+      } else if (autoPhase?.constructor?.name === "EvolutionPhase" || autoPhase?.constructor?.name === "FormChangePhase") {
+        const pokemon = autoPhase.pokemon;
+        const evolution = autoPhase.evolution;
+        const lastLevel = autoPhase.lastLevel ?? 0;
+        if (pokemon && evolution) {
+          pokemon.evolve?.(evolution, pokemon.species);
+          const situation = autoPhase.fusionSpeciesEvolved
+            ? LearnMoveSituation.EVOLUTION_FUSED
+            : pokemon.fusionSpecies
+              ? LearnMoveSituation.EVOLUTION_FUSED_BASE
+              : LearnMoveSituation.EVOLUTION;
+          const levelMoves = pokemon
+            .getLevelMoves(lastLevel + 1, true, false, false, situation)
+            .filter((lm: any) => lm[0] === EVOLVE_MOVE);
+          for (const lm of levelMoves) {
+            this.scene.phaseManager.unshiftNew(
+              "LearnMovePhase",
+              this.scene.getPlayerParty().indexOf(pokemon),
+              lm[1],
+            );
+          }
+        }
+        this.scene.phaseManager.unshiftNew("EndEvolutionPhase");
+        autoPhase.end?.();
       }
 
       this.scene.phaseManager.shiftPhase();
