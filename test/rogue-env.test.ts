@@ -203,6 +203,17 @@ describe("headless flag", () => {
     delete process.env.VITE_HEADLESS;
     vi.resetModules();
   });
+
+  it("should disable animations and audio", async () => {
+    process.env.VITE_HEADLESS = "1";
+    vi.resetModules();
+    const { default: BattleScene } = await import("#app/battle-scene");
+    const scene = new BattleScene();
+    expect(scene.moveAnimations).toBe(false);
+    expect(scene.masterVolume).toBe(0);
+    delete process.env.VITE_HEADLESS;
+    vi.resetModules();
+  });
 });
 
 describe("rogue-env parity", () => {
