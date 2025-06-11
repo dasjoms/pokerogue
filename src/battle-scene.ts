@@ -1,6 +1,20 @@
 import Phaser from "phaser";
 import UI from "#app/ui/ui";
 import { headless } from "#app/global-vars/headless";
+
+let FieldSpritePipeline: typeof import("#app/pipelines/field-sprite").default;
+let SpritePipeline: typeof import("#app/pipelines/sprite").default;
+let InvertPostFX: typeof import("#app/pipelines/invert").default;
+
+if (!headless) {
+  ({ default: FieldSpritePipeline } = await import("#app/pipelines/field-sprite"));
+  ({ default: SpritePipeline } = await import("#app/pipelines/sprite"));
+  ({ default: InvertPostFX } = await import("#app/pipelines/invert"));
+} else {
+  FieldSpritePipeline = class extends Phaser.Renderer.WebGL.Pipelines.MultiPipeline {} as any;
+  SpritePipeline = FieldSpritePipeline as any;
+  InvertPostFX = class extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {} as any;
+}
 import type Pokemon from "#app/field/pokemon";
 import { EnemyPokemon, PlayerPokemon } from "#app/field/pokemon";
 import type { PokemonSpeciesFilter } from "#app/data/pokemon-species";
@@ -83,8 +97,6 @@ import { BattleType } from "#enums/battle-type";
 import type { GameMode } from "#app/game-mode";
 import { getGameMode } from "#app/game-mode";
 import { GameModes } from "#enums/game-modes";
-import FieldSpritePipeline from "#app/pipelines/field-sprite";
-import SpritePipeline from "#app/pipelines/sprite";
 import PartyExpBar from "#app/ui/party-exp-bar";
 import type { TrainerSlot } from "./enums/trainer-slot";
 import { trainerConfigs } from "#app/data/trainers/trainer-config";
@@ -94,7 +106,6 @@ import type TrainerData from "#app/system/trainer-data";
 import SoundFade from "phaser3-rex-plugins/plugins/soundfade";
 import { pokemonPrevolutions } from "#app/data/balance/pokemon-evolutions";
 import PokeballTray from "#app/ui/pokeball-tray";
-import InvertPostFX from "#app/pipelines/invert";
 import type { Achv } from "#app/system/achv";
 import { achvs, ModifierAchv, MoneyAchv } from "#app/system/achv";
 import type { Voucher } from "#app/system/voucher";
@@ -2638,6 +2649,9 @@ export default class BattleScene extends SceneBase {
   }
 
   toggleInvert(invert: boolean): void {
+    if (headless) {
+      return;
+    }
     if (invert) {
       this.cameras.main.setPostPipeline(InvertPostFX);
     } else {
