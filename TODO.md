@@ -35,7 +35,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Benchmark large batches of steps to identify remaining bottlenecks.
 
 ## 6. Integration and packaging
-- Provide an npm script or Dockerfile to run training sessions out of the box.
+- [x] Provide an npm script or Dockerfile to run training sessions out of the box.
 - Publish the headless environment as a versioned package for other projects.
 - Write concise documentation explaining how to embed the environment into external reinforcement learning pipelines.
 

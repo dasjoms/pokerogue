@@ -27,7 +27,8 @@
     "update-version:minor": "npm version minor --force --no-git-tag-version",
     "update-locales:remote": "git submodule update --progress --init --recursive --force --remote",
     "env:demo": "npx tsx scripts/rogue-env-demo.ts",
-    "env:bench": "npx tsx scripts/rogue-env-benchmark.ts"
+    "env:bench": "npx tsx scripts/rogue-env-benchmark.ts",
+    "env:train": "npx tsx scripts/rogue-env-train.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
