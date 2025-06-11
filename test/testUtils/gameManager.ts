@@ -53,7 +53,8 @@ import type InputsHandler from "#test/testUtils/inputsHandler";
 import { MockFetch } from "#test/testUtils/mocks/mockFetch";
 import PhaseInterceptor from "#test/testUtils/phaseInterceptor";
 import TextInterceptor from "#test/testUtils/TextInterceptor";
-import { AES, enc } from "crypto-js";
+import CryptoJS from "crypto-js";
+const { AES, enc } = CryptoJS;
 import fs from "node:fs";
 import { expect, vi } from "vitest";
 
