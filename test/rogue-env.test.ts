@@ -226,7 +226,7 @@ describe("rogue-env parity", () => {
 
   it("should match the standard scene for identical actions", () => {
     const seed = "parity-seed";
-    const actions = [RogueAction.FIGHT_1, RogueAction.FIGHT_1];
+    const actions = [RogueAction.FIGHT_1, RogueAction.BALL_1];
 
     const env = new RogueEnv(seed);
     env.reset();

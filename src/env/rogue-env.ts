@@ -46,6 +46,26 @@ export enum RogueAction {
   TERA_3 = 15,
   /** Terastallize and use the fourth move. */
   TERA_4 = 16,
+  /** Target the first battler index. */
+  TARGET_1 = 17,
+  /** Target the second battler index. */
+  TARGET_2 = 18,
+  /** Target the third battler index. */
+  TARGET_3 = 19,
+  /** Target the fourth battler index. */
+  TARGET_4 = 20,
+  /** Choose the first party slot when switching. */
+  SLOT_1 = 21,
+  /** Choose the second party slot when switching. */
+  SLOT_2 = 22,
+  /** Choose the third party slot when switching. */
+  SLOT_3 = 23,
+  /** Choose the fourth party slot when switching. */
+  SLOT_4 = 24,
+  /** Choose the fifth party slot when switching. */
+  SLOT_5 = 25,
+  /** Choose the sixth party slot when switching. */
+  SLOT_6 = 26,
 }
 
 /**
@@ -128,6 +148,18 @@ export default class RogueEnv {
         } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_3) {
           phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
         }
+      } else if (phase?.constructor.name === "SelectTargetPhase") {
+        const handler: any = this.scene.ui.getHandler();
+        const cb = handler?.targetSelectCallback as ((targets: number[]) => void) | undefined;
+        if (cb && action >= RogueAction.TARGET_1 && action <= RogueAction.TARGET_4) {
+          cb([action - RogueAction.TARGET_1]);
+        }
+      } else if (phase?.constructor.name === "SwitchPhase") {
+        const handler: any = this.scene.ui.getHandler();
+        const cb = handler?.selectCallback as ((slot: number, option: number) => void) | undefined;
+        if (cb && action >= RogueAction.SLOT_1 && action <= RogueAction.SLOT_6) {
+          cb(action - RogueAction.SLOT_1, 1);
+        }
       }
     } else if (typeof action === "function") {
       action(this.scene);
@@ -197,6 +229,22 @@ export default class RogueEnv {
           if (p.hp > 0 && !p.isActive(true)) {
             actions.push((RogueAction.SWITCH_1 + i) as RogueAction);
           }
+        }
+      }
+    } else if (phase?.constructor.name === "SelectTargetPhase") {
+      const handler: any = this.scene.ui.getHandler();
+      const targets: number[] = handler?.targets ?? [];
+      for (const t of targets) {
+        if (t >= 0 && t <= 3) {
+          actions.push((RogueAction.TARGET_1 + t) as RogueAction);
+        }
+      }
+    } else if (phase?.constructor.name === "SwitchPhase") {
+      const party = this.scene.getPlayerParty();
+      for (let i = 0; i < Math.min(6, party.length); i++) {
+        const p = party[i];
+        if (p.hp > 0 && !p.isActive(true)) {
+          actions.push((RogueAction.SLOT_1 + i) as RogueAction);
         }
       }
     }
