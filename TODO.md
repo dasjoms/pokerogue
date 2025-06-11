@@ -1,42 +1,40 @@
 # Neural Network Training Support
 
-This document summarizes high level tasks required to expose the game logic for machine learning without the normal browser UI. These points are based on the current repository structure and headless test environment.
+This file tracks outstanding work required to convert PokéRogue into a stable headless environment usable for reinforcement learning.  Many basics are already implemented (`RogueEnv` wrapper, headless flag, serialization and parity tests).  The remaining tasks are grouped below in a suggested development order.
 
-## 1. Headless environment wrapper
-- Create a new class (e.g. `RogueEnv`) that instantiates `BattleScene` using `Phaser.HEADLESS` similar to the test `GameManager`.
-- Provide methods:
-  - `reset()` – start a new run or battle.
-  - `step(action)` – apply a single action and advance the game phases.
-  - `getState()` – return a serialized representation of the current gamestate.
-- Use existing `GameManager` utilities as reference but strip out UI handlers and test-only helpers.
-- `reset()` should automatically start a classic run with a fixed starter party:
-  - Squirtle, Bulbasaur and Charmander are added directly to the player's party.
-  - Skip all menus and immediately push phases so the first enemy encounter begins.
-  - Reuse logic from `initSceneWithoutEncounterPhase()` to build the starters and populate `BattleScene`.
-  - The first call to `step()` should correspond to selecting the first action in the opening battle.
+## 1. Finalise headless environment module
+- Move `RogueEnv` and `TransitionLogger` into their own folder or package so external training scripts can import them cleanly.
+- Provide a simple CLI entry point that instantiates `RogueEnv`, runs a fixed number of steps and writes the log to disk.
+- Document environment variables (`VITE_HEADLESS`, seed selection, log path).
 
-## 2. Game state serialization
-- Implement serialization functions that traverse scene objects and return JSON describing:
-  - player party Pokémon stats/moves
-  - enemy party Pokémon stats/moves
-  - current phase/turn info
-  - inventory, modifiers and other field effects
-- Keep the format consistent so the training code can store `(state, action, reward, next_state, done)` tuples.
+## 2. Expand the action space
+- Add support for item usage, terastallization, capturing and other command types.
+- Allow selecting a target when a move or switch requires it.
+- Expose high level commands such as `Bag` and `Run` as discrete actions.
+- Update tests to cover the new actions and ensure backward compatibility.
 
-## 3. Direct action interface
-- Map discrete actions expected by the neural network to in-game decisions. Example actions could represent high level commands like `Fight`, `Switch` or `Use Item`, or direct move selections.
-- Replace input events with direct method calls to `BattleScene` and phase managers to minimize overhead.
+## 3. Enrich state serialization
+- Include detailed move information (power, type, remaining PP) in `SerializedState`.
+- Capture held items, stat boosts and volatile statuses for both player and enemy.
+- Expose arena features like hazards, terrain turns and wave index in a stable format.
+- Version the JSON schema so training data remains usable as the format evolves.
 
-## 4. Remove UI dependencies
-- When running in training mode, disable creation of all UI handlers. Mock or bypass any required methods so the game can progress without rendering.
-- Ensure the new environment runs purely in memory to enable fast simulation.
+## 4. Reward calculation and logging
+- Provide helper functions to compute rewards after each step (e.g. damage dealt, fainted Pokémon, wave cleared).
+- Store `(state, action, reward, next_state, done)` tuples using `TransitionLogger` with optional compression or rotation.
+- Add utilities to replay logged transitions to verify determinism.
 
-## 5. Data logging utilities
-- Add helpers to record transitions `(state, action, reward, next_state, done)` during training runs.
-- Optionally reuse existing save‑data export helpers for writing logs to disk.
+## 5. Performance improvements
+- Skip animations and audio entirely when `headless` to maximise simulation speed.
+- Offer a "fast forward" option to progress multiple internal phases within a single call to `step()`.
+- Benchmark large batches of steps to identify remaining bottlenecks.
 
-## 6. Automated tests
-- Add unit tests verifying that the headless environment produces the same battle outcomes as the standard game when provided with identical actions and seeds.
-- Tests should also check that serialization and action mapping behave deterministically.
+## 6. Integration and packaging
+- Provide an npm script or Dockerfile to run training sessions out of the box.
+- Publish the headless environment as a versioned package for other projects.
+- Write concise documentation explaining how to embed the environment into external reinforcement learning pipelines.
 
-These tasks should make the game logic accessible for reinforcement learning without modifying the core gameplay rules.
+## 7. Extended test suite
+- Continue mirroring battles between the normal game and `RogueEnv` to catch regressions.
+- Add tests that verify new serialization fields and action mappings.
+- Ensure seeding remains deterministic across Node versions.
