@@ -229,6 +229,28 @@ describe("rogue-env progression", () => {
   });
 });
 
+describe("rogue-env termination", () => {
+  it("should auto terminate on final phases", () => {
+    const env = new RogueEnv();
+    env.reset();
+    vi.spyOn(env.scene.phaseManager, "shiftPhase").mockImplementation(() => {});
+    vi.spyOn(env.scene.phaseManager, "getCurrentPhase").mockReturnValue({ constructor: { name: "GameOverPhase" } } as any);
+    env.step();
+    expect(env.terminated).toBe(true);
+  });
+
+  it("should support manual termination", () => {
+    const env = new RogueEnv();
+    env.reset();
+    env.terminate();
+    const before = env.getState();
+    const r = env.step(RogueAction.FIGHT_1);
+    expect(r).toBe(0);
+    expect(env.getState()).toEqual(before);
+    expect(env.terminated).toBe(true);
+  });
+});
+
 describe("headless flag", () => {
   it("should force bypassLogin when set", async () => {
     process.env.VITE_HEADLESS = "1";
