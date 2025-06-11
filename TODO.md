@@ -19,9 +19,8 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 - [x] Expose arena features like hazards, terrain turns and wave index in a stable format.
 - Version the JSON schema so training data remains usable as the format evolves.
 
-## 4. Reward calculation and logging
-- Provide helper functions to compute rewards after each step (e.g. damage dealt, fainted Pokémon, wave cleared).
-- Store `(state, action, reward, next_state, done)` tuples using `TransitionLogger` with optional compression or rotation.
+- [x] Provide helper functions to compute rewards after each step (e.g. damage dealt, fainted Pokémon, wave cleared).
+- [x] Store `(state, action, reward, next_state, done)` tuples using `TransitionLogger` with optional compression or rotation.
 - Add utilities to replay logged transitions to verify determinism.
 
 ## 5. Performance improvements

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { RogueEnv, RogueAction, TransitionLogger } from "#env";
+import { RogueEnv, RogueAction, TransitionLogger, computeStepReward } from "#env";
 import Phaser from "phaser";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import BattleScene from "#app/battle-scene";
@@ -107,7 +107,9 @@ describe("rogue-env logging", () => {
     env.logger = new TransitionLogger();
     env.reset();
     const start = env.getState();
-    env.step(RogueAction.FIGHT_1, 1, false);
+    const r = env.step(RogueAction.FIGHT_1);
+    const expected = computeStepReward(start, env.getState());
+    expect(r).toBe(expected);
     const records = env.logger.getRecords();
     expect(records.length).toBe(1);
     expect(records[0].state).toEqual(start);
@@ -119,12 +121,12 @@ describe("rogue-env logging", () => {
     const env = new RogueEnv();
     env.logger = new TransitionLogger();
     env.reset();
-    env.step(RogueAction.FIGHT_1, 1, false);
+    env.step(RogueAction.FIGHT_1);
 
     const file = join(tmpdir(), `transitions-${Date.now()}.json`);
-    await env.logger!.saveToFile(file);
-    const contents = await fs.readFile(file, "utf8");
-    expect(contents).toBe(env.logger!.toJSON());
+    await env.logger!.saveToFile(file, true);
+    const contents = await fs.readFile(file);
+    expect(contents.length).toBeGreaterThan(0);
     await fs.unlink(file);
   });
 
@@ -132,10 +134,10 @@ describe("rogue-env logging", () => {
     const env = new RogueEnv();
     env.logger = new TransitionLogger();
     env.reset();
-    env.step(RogueAction.FIGHT_1, 1, false);
+    env.step(RogueAction.FIGHT_1);
 
     const file = join(tmpdir(), `transitions-${Date.now()}.json`);
-    await env.logger.saveToFile(file);
+    await env.logger.saveToFile(file, true);
 
     const logger2 = new TransitionLogger();
     await logger2.loadFromFile(file);

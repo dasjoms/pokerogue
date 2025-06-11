@@ -6,6 +6,7 @@ import { randomString } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
 import type TransitionLogger from "#env/transition-logger";
 import type { TransitionRecord } from "#env/transition-logger";
+import { computeStepReward } from "#env/reward";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
@@ -134,7 +135,11 @@ export default class RogueEnv {
    * appropriate in‑game command. A custom function may also be passed to
    * manipulate the underlying {@link BattleScene} directly.
    */
-  step(action?: RogueAction | ((scene: BattleScene) => void), reward = 0, done = false): void {
+  step(
+    action?: RogueAction | ((scene: BattleScene) => void),
+    reward?: number,
+    done = false,
+  ): number {
     const prevState = this.getState();
     if (typeof action === "number") {
       const phase: any = this.scene.phaseManager.getCurrentPhase();
@@ -177,6 +182,10 @@ export default class RogueEnv {
       safety++;
     }
     const nextState = this.getState();
+    const computed = computeStepReward(prevState, nextState);
+    if (reward === undefined) {
+      reward = computed;
+    }
     if (this.logger) {
       const record: TransitionRecord = {
         state: prevState,
@@ -187,6 +196,7 @@ export default class RogueEnv {
       };
       this.logger.log(record);
     }
+    return reward;
   }
 
   /**
