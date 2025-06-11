@@ -9,7 +9,7 @@ This file tracks outstanding work required to convert PokéRogue into a stable h
 
 ## 2. Expand the action space
 - [x] Add support for item usage, terastallization, capturing and other command types.
-- Allow selecting a target when a move or switch requires it and handling of multi-turn moves.
+- [x] Allow selecting a target when a move or switch requires it and handling of multi-turn moves.
 - Expose high level commands such as `Bag` and `Run` as discrete actions.
 - Update tests to cover the new actions and ensure backward compatibility.
 
