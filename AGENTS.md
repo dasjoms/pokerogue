@@ -43,12 +43,4 @@ Do not run other project commands until the verification script exits successful
 
 ## Tests
 
-This repository MUST ONLY verify functionality using the tests created specifically for the fork projects purpose (See the list below). No other tests than the ones listed are allowed to be used.
-Whenever new features are added or modifications are made you are to modify the existing tests or create a new one to verify its functionality.
-Any new tests you create must be added to the list below for proper project maintenance.
-
-### Fork Test Files:
-
-    - rogue-env.test.ts
-
-ALL tests have to be run exactly like this if not otherwise specified by the user (remove the silent flag if user asks for it): 'npm run test:silent -- test/rogue-env.test.ts'
+The current state of the repository requires you to run 'ROGUE_SEED=4 VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 3 10 model-5 log-5.json' to run the neural network training script. You will have to manually stop it after around 15 seconds as it does not exit automatically. Whenever you add new features or make modifications you are to run the training script with the provided command and deeply analyze the generated "log-5.json" file to verify your changes are taking the desired effect on training.
