@@ -99,6 +99,9 @@ export default abstract class AbstractOptionSelectUiHandler extends UiHandler {
     if (this.optionSelectText) {
       if (this.optionSelectText instanceof BBCodeText) {
         try {
+          // Prevent errors if the underlying texture does not expose a destroy
+          // method when running headless
+          (this.optionSelectText as any).texture = null;
           this.optionSelectText.destroy();
         } catch (error) {
           console.error("Error while destroying optionSelectText:", error);

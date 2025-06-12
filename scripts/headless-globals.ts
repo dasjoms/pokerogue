@@ -63,6 +63,30 @@ if (typeof globalThis.window === 'undefined') {
       },
     } as any;
   }
+
+  // Filter noisy asset warnings when running in headless mode
+  const assetWarningPatterns = [
+    /Texture ".*" not found/i,
+    /variant icon does not exist/i,
+  ];
+
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const msg = args[0];
+    if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
+      return;
+    }
+    originalWarn(...args);
+  };
+
+  const originalLog = console.log;
+  console.log = (...args: any[]) => {
+    const msg = args[0];
+    if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
+      return;
+    }
+    originalLog(...args);
+  };
 }
 
 export {};
