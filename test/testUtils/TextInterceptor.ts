@@ -17,7 +17,7 @@ export default class TextInterceptor {
     _prompt?: boolean,
     _promptDelay?: number,
   ): void {
-    console.log(text);
+    // Suppress console output during headless execution
     this.logs.push(text);
   }
 
@@ -29,7 +29,7 @@ export default class TextInterceptor {
     _callbackDelay?: number,
     _promptDelay?: number,
   ): void {
-    console.log(name, text);
+    // Suppress console output during headless execution
     this.logs.push(name, text);
   }
 

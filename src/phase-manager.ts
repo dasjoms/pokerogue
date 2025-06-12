@@ -350,7 +350,7 @@ export class PhaseManager {
     }
 
     if (this.currentPhase) {
-      console.log(`%cStart Phase ${this.currentPhase.constructor.name}`, "color:green;");
+      // Debug logging removed for headless execution
       this.currentPhase.start();
     }
   }
@@ -362,7 +362,7 @@ export class PhaseManager {
 
     this.standbyPhase = this.currentPhase;
     this.currentPhase = phase;
-    console.log(`%cStart Phase ${phase.constructor.name}`, "color:green;");
+    // Debug logging removed for headless execution
     phase.start();
 
     return true;
