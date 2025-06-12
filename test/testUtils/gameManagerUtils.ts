@@ -53,6 +53,7 @@ export function generateStarter(scene: BattleScene, species?: SpeciesId[]): Star
       undefined,
       starter.nature,
     );
+    starterPokemon.generateAndPopulateMoveset();
     const moveset: MoveId[] = [];
     starterPokemon.moveset.forEach(move => {
       moveset.push(move!.getMove().id);
@@ -127,6 +128,7 @@ export function initSceneWithoutEncounterPhase(scene: BattleScene, species?: Spe
       starterIvs,
       starter.nature,
     );
+    starterPokemon.generateAndPopulateMoveset();
     starter.moveset && starterPokemon.tryPopulateMoveset(starter.moveset);
     scene.getPlayerParty().push(starterPokemon);
   });
