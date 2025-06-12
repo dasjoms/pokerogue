@@ -25,6 +25,12 @@ source ~/.nvm/nvm.sh
 nvm use 22.14.0
 ```
 
+And rebuild tensorflow using:
+
+```bash
+npm rebuild @tensorflow/tfjs-node --build-addon-from-source
+```
+
 ## Verification
 After running the setup script and activating Node 22.14.0, execute the verification script to confirm the environment is ready:
 
