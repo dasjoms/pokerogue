@@ -23,8 +23,18 @@ Execute it with:
 VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts
 ```
 
-The script saves the trained model to the `dqn-model` directory. Adjust the
-`episodes` and `maxSteps` parameters inside the file to control training length.
+Optional arguments let you set the episode count, steps per episode, model output
+directory and log file:
+
+```bash
+VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 50 500 my-model my-log.json.gz
+```
+
+Environment variables `ROGUE_EPISODES`, `ROGUE_MAX_STEPS`, `ROGUE_MODEL_PATH` and
+`ROGUE_LOG_PATH` may also be provided.
+
+The model directory defaults to `dqn-model`. When a log path is supplied the
+training transitions are saved (gzip compressed if the filename ends with `.gz`).
 
 ## 3. Writing Custom Agents
 

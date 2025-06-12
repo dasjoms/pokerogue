@@ -88,6 +88,13 @@ For a more advanced example using a neural network agent, see the [Reinforcement
 ```bash
 VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts
 ```
+The script accepts optional arguments for episodes, steps, model directory and log file:
+
+```bash
+VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 50 500 my-model my-log.json.gz
+```
+Environment variables `ROGUE_EPISODES`, `ROGUE_MAX_STEPS`, `ROGUE_MODEL_PATH` and `ROGUE_LOG_PATH` may be used instead of arguments.
+If the log filename ends with `.gz` it will be gzip compressed.
 
 
 
