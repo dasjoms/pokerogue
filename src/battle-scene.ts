@@ -222,7 +222,8 @@ export default class BattleScene extends SceneBase {
   public showTimeOfDayWidget = true;
   public timeOfDayAnimation: EaseType = EaseType.NONE;
   public showLevelUpStats = true;
-  public enableTutorials: boolean = import.meta.env.VITE_BYPASS_TUTORIAL === "1";
+  public enableTutorials: boolean =
+    typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_BYPASS_TUTORIAL === "1";
   public enableMoveInfo = true;
   public enableRetries = false;
   public hideIvs = false;

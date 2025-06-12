@@ -15,7 +15,8 @@
       "#app/*": ["*.ts"],
       "#test/*": ["../test/*.ts"],
       "#env": ["./env/index.ts"],
-      "#env/*": ["./env/*.ts"]
+      "#env/*": ["./env/*.ts"],
+      "phaser": ["../node_modules/phaser/dist/phaser.js"]
     },
     "outDir": "./build",
     "noEmit": true

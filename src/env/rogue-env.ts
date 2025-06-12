@@ -14,6 +14,13 @@ import { SpeciesId } from "#enums/species-id";
 import { TerastallizeAccessModifier } from "#app/modifier/modifier";
 import { LearnMoveSituation } from "#enums/learn-move-situation";
 import { EVOLVE_MOVE } from "#app/data/balance/pokemon-level-moves";
+import { initBiomes } from "#app/data/balance/biomes";
+import { initEggMoves } from "#app/data/balance/egg-moves";
+import { initPokemonPrevolutions, initPokemonStarters } from "#app/data/balance/pokemon-evolutions";
+import { initMoves } from "#app/data/moves/move";
+import { initPokemonForms } from "#app/data/pokemon-forms";
+import { initSpecies } from "#app/data/pokemon-species";
+import { initAbilities } from "#app/data/abilities/ability";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -115,6 +122,7 @@ export default class RogueEnv {
   /** Helper wrapper for injecting Phaser mocks. */
   private wrapper: GameWrapper;
 
+
   /** Optional logger for transition data. */
   public logger?: TransitionLogger;
 
@@ -129,9 +137,32 @@ export default class RogueEnv {
 
   constructor(seed?: string) {
     this.seed = seed ?? randomString(24);
+    // Minimal data initialization mimicking the test setup
+    initAbilities();
+    initBiomes();
+    initEggMoves();
+    initPokemonForms();
+    initPokemonPrevolutions();
+    initPokemonStarters();
+    initMoves();
+    initSpecies();
+
     this.game = new Phaser.Game({
       type: Phaser.HEADLESS,
     });
+    const setPositionRelative = function (this: any, guide: any, x: number, y: number) {
+      const offsetX = guide.width * (-0.5 + (0.5 - guide.originX));
+      const offsetY = guide.height * (-0.5 + (0.5 - guide.originY));
+      return this.setPosition(guide.x + offsetX + x, guide.y + offsetY + y);
+    };
+    Phaser.GameObjects.Container.prototype.setPositionRelative = setPositionRelative as any;
+    Phaser.GameObjects.Sprite.prototype.setPositionRelative = setPositionRelative as any;
+    Phaser.GameObjects.Image.prototype.setPositionRelative = setPositionRelative as any;
+    if ((Phaser.GameObjects as any).NineSlice) {
+      (Phaser.GameObjects as any).NineSlice.prototype.setPositionRelative = setPositionRelative as any;
+    }
+    Phaser.GameObjects.Text.prototype.setPositionRelative = setPositionRelative as any;
+    Phaser.GameObjects.Rectangle.prototype.setPositionRelative = setPositionRelative as any;
     this.scene = new BattleScene();
     this.wrapper = new GameWrapper(this.game, true);
     this.wrapper.setScene(this.scene);

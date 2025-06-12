@@ -107,22 +107,8 @@ export class SpeciesFormEvolution {
     this.condition = condition;
     this.wildDelay = wildDelay ?? SpeciesWildEvolutionDelay.NONE;
 
-    const strings: string[] = [];
-    if (this.level > 1) {
-      strings.push(i18next.t("pokemonEvolutions:level") + ` ${this.level}`);
-    }
-    if (this.item) {
-      const itemDescription = i18next.t(`modifierType:EvolutionItem.${EvolutionItem[this.item].toUpperCase()}`);
-      const rarity = this.item > 50 ? i18next.t("pokemonEvolutions:ULTRA") : i18next.t("pokemonEvolutions:GREAT");
-      strings.push(i18next.t("pokemonEvolutions:using") + itemDescription + ` (${rarity})`);
-    }
-    if (this.condition) {
-      strings.push(this.condition.description);
-    }
-    this.description = strings
-      .filter(str => str !== "")
-      .map((str, index) => index > 0 ? str[0].toLowerCase() + str.slice(1) : str)
-      .join(i18next.t("pokemonEvolutions:connector"));
+    // Description generation uses i18n which isn't required in headless mode
+    this.description = "";
   }
 }
 
