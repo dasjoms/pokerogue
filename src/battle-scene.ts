@@ -2011,6 +2011,10 @@ export default class BattleScene extends SceneBase {
   }
 
   updateBiomeWaveText(): void {
+    if (!this.biomeWaveText) {
+      return;
+    }
+
     const isBoss = !(this.currentBattle.waveIndex % 10);
     const biomeString: string = getBiomeName(this.arena.biomeType);
     this.fieldUI.moveAbove(this.biomeWaveText, this.luckText);

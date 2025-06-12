@@ -7,6 +7,7 @@ import { Button } from "#enums/buttons";
 import { getPokemonNameWithAffix } from "#app/messages";
 import type { CommandPhase } from "#app/phases/command-phase";
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import { TerastallizeAccessModifier } from "#app/modifier/modifier";
 import { PokemonType } from "#enums/pokemon-type";
 import { getTypeRgb } from "#app/data/type";
@@ -63,6 +64,10 @@ export default class CommandUiHandler extends UiHandler {
     super.show(args);
 
     this.fieldIndex = args.length ? (args[0] as number) : 0;
+
+    if (headless) {
+      return true;
+    }
 
     this.commandsContainer.setVisible(true);
 
@@ -225,16 +230,18 @@ export default class CommandUiHandler extends UiHandler {
       }
     }
 
-    if (!this.cursorObj) {
+    if (!this.cursorObj && this.commandsContainer) {
       this.cursorObj = globalScene.add.image(0, 0, "cursor");
       this.commandsContainer.add(this.cursorObj);
     }
 
-    if (cursor === Command.TERA) {
-      this.cursorObj.setVisible(false);
-    } else {
-      this.cursorObj.setPosition(-5 + (cursor % 2 === 1 ? 56 : 0), 8 + (cursor >= 2 ? 16 : 0));
-      this.cursorObj.setVisible(true);
+    if (this.cursorObj) {
+      if (cursor === Command.TERA) {
+        this.cursorObj.setVisible(false);
+      } else {
+        this.cursorObj.setPosition(-5 + (cursor % 2 === 1 ? 56 : 0), 8 + (cursor >= 2 ? 16 : 0));
+        this.cursorObj.setVisible(true);
+      }
     }
 
     return changed;
@@ -242,9 +249,10 @@ export default class CommandUiHandler extends UiHandler {
 
   clear(): void {
     super.clear();
-    this.getUi().getMessageHandler().commandWindow.setVisible(false);
-    this.commandsContainer.setVisible(false);
-    this.getUi().getMessageHandler().clearText();
+    const mh = this.getUi().getMessageHandler?.();
+    mh?.commandWindow?.setVisible(false);
+    this.commandsContainer?.setVisible(false);
+    mh?.clearText?.();
     this.eraseCursor();
   }
 

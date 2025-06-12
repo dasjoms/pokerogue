@@ -265,7 +265,7 @@ export default abstract class MessageUiHandler extends AwaitableUiHandler {
   }
 
   clearText() {
-    this.message.setText("");
+    this.message?.setText("");
     this.pendingPrompt = false;
   }
 

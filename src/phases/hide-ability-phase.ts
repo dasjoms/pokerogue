@@ -6,6 +6,11 @@ export class HideAbilityPhase extends Phase {
   start() {
     super.start();
 
+    if (!globalScene.abilityBar) {
+      this.end();
+      return;
+    }
+
     globalScene.abilityBar.hide().then(() => {
       this.end();
     });

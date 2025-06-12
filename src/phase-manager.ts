@@ -493,7 +493,7 @@ export class PhaseManager {
    * Hides the ability bar if it is currently visible
    */
   public hideAbilityBar(): void {
-    if (globalScene.abilityBar.isVisible()) {
+    if (globalScene.abilityBar && globalScene.abilityBar.isVisible()) {
       this.unshiftPhase(new HideAbilityPhase());
     }
   }

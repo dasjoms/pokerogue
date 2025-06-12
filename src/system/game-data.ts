@@ -320,7 +320,7 @@ export class GameData {
 
   public saveSystem(): Promise<boolean> {
     return new Promise<boolean>(resolve => {
-      globalScene.ui.savingIcon.show();
+      globalScene.ui?.savingIcon?.show();
       const data = this.getSystemSaveData();
 
       const maxIntAttrValue = 0x80000000;
@@ -332,7 +332,7 @@ export class GameData {
 
       if (!bypassLogin) {
         pokerogueApi.savedata.system.update({ clientSessionId }, systemData).then(error => {
-          globalScene.ui.savingIcon.hide();
+          globalScene.ui?.savingIcon?.hide();
           if (error) {
             if (error.startsWith("session out of date")) {
               globalScene.phaseManager.clearPhaseQueue();
@@ -344,7 +344,7 @@ export class GameData {
           resolve(true);
         });
       } else {
-        globalScene.ui.savingIcon.hide();
+        globalScene.ui?.savingIcon?.hide();
 
         resolve(true);
       }
@@ -1318,7 +1318,7 @@ export class GameData {
         if (success !== null && !success) {
           return resolve(false);
         }
-        if (sync) {
+        if (sync && globalScene.ui?.savingIcon) {
           globalScene.ui.savingIcon.show();
         }
         const sessionData = useCachedSession
@@ -1361,10 +1361,10 @@ export class GameData {
 
         if (!bypassLogin && sync) {
           pokerogueApi.savedata.updateAll(request).then(error => {
-            if (sync) {
-              globalScene.lastSavePlayTime = 0;
-              globalScene.ui.savingIcon.hide();
-            }
+              if (sync && globalScene.ui?.savingIcon) {
+                globalScene.lastSavePlayTime = 0;
+                globalScene.ui.savingIcon.hide();
+              }
             if (error) {
               if (error.startsWith("session out of date")) {
                 globalScene.phaseManager.clearPhaseQueue();
@@ -1376,10 +1376,10 @@ export class GameData {
             resolve(true);
           });
         } else {
-          this.verify().then(success => {
-            globalScene.ui.savingIcon.hide();
-            resolve(success);
-          });
+            this.verify().then(success => {
+              globalScene.ui?.savingIcon?.hide();
+              resolve(success);
+            });
         }
       });
     });

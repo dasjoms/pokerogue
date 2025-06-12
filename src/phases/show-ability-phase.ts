@@ -34,7 +34,7 @@ export class ShowAbilityPhase extends PokemonPhase {
     }
 
     // If the bar is already out, hide it before showing the new one
-    if (globalScene.abilityBar.isVisible()) {
+    if (globalScene.abilityBar && globalScene.abilityBar.isVisible()) {
       globalScene.phaseManager.unshiftNew("HideAbilityPhase");
       globalScene.phaseManager.unshiftNew("ShowAbilityPhase", this.battlerIndex, this.passive);
       return this.end();
@@ -47,6 +47,10 @@ export class ShowAbilityPhase extends PokemonPhase {
       globalScene.currentBattle.lastEnemyInvolved = pokemon.getBattlerIndex() % 2;
     } else {
       globalScene.currentBattle.lastPlayerInvolved = pokemon.getBattlerIndex() % 2;
+    }
+
+    if (!globalScene.abilityBar) {
+      return this.end();
     }
 
     globalScene.abilityBar.showAbility(this.pokemonName, this.abilityName, this.passive, this.player).then(() => {

@@ -1,4 +1,5 @@
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import { addBBCodeTextObject, addTextObject, getTextColor, TextStyle } from "./text";
 import { UiMode } from "#enums/ui-mode";
 import MessageUiHandler from "./message-ui-handler";
@@ -146,9 +147,11 @@ export default class BattleMessageUiHandler extends MessageUiHandler {
   show(args: any[]): boolean {
     super.show(args);
 
-    this.commandWindow.setVisible(false);
-    this.movesWindowContainer.setVisible(false);
-    this.message.setWordWrapWidth(this.wordWrapWidth);
+    if (!headless) {
+      this.commandWindow.setVisible(false);
+      this.movesWindowContainer.setVisible(false);
+      this.message.setWordWrapWidth(this.wordWrapWidth);
+    }
 
     return true;
   }
