@@ -47,7 +47,7 @@ export class PokemonMove {
    * @returns `true` if the move can be selected and used by the Pokemon, otherwise `false`.
    */
   isUsable(pokemon: Pokemon, ignorePp = false, ignoreRestrictionTags = false): boolean {
-    if (this.moveId && !ignoreRestrictionTags && pokemon.isMoveRestricted(this.moveId, pokemon)) {
+    if (this.moveId && !ignoreRestrictionTags && pokemon.isMoveRestricted(this.moveId)) {
       return false;
     }
 
