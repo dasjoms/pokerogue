@@ -1,6 +1,6 @@
 import "./headless-globals";
-import { RogueEnv, RogueAction } from "#env";
-import type { SerializedState, SerializedPokemon } from "#app/utils/serialize";
+import { RogueEnv, type RogueAction } from "#env";
+import type { SerializedState } from "#app/utils/serialize";
 import { tensor, train, layers, sequential, type LayersModel, dispose } from "@tensorflow/tfjs-node";
 
 function flattenState(state: SerializedState): number[] {
@@ -20,30 +20,6 @@ function flattenState(state: SerializedState): number[] {
 
 const INPUT_SIZE = 6;
 const ACTION_COUNT = 42; // total actions in RogueAction enum
-
-function summarizeMon(p: SerializedPokemon) {
-  return {
-    species: p.species,
-    level: p.level,
-    hp: p.hp,
-    maxHp: p.maxHp,
-    status: p.status,
-  };
-}
-
-export function logSerializedState(state: SerializedState, action: RogueAction) {
-  const summary = {
-    phase: state.phase,
-    turn: state.turn,
-    wave: state.wave,
-    player: state.playerParty.map(summarizeMon),
-    enemy: state.enemyParty.map(summarizeMon),
-    playerActive: state.playerActive,
-    enemyActive: state.enemyActive,
-    action: RogueAction[action],
-  };
-  console.log(JSON.stringify(summary, null, 2));
-}
 
 class DQNAgent {
   private model: LayersModel;
@@ -125,15 +101,12 @@ async function runTraining(episodes = 10, maxSteps = 200) {
   const agent = new DQNAgent();
   for (let ep = 0; ep < episodes; ep++) {
     env.reset();
-    let serialized = env.getState();
-    let state = flattenState(serialized);
+    let state = flattenState(env.getState());
     for (let t = 0; t < maxSteps && !env.terminated; t++) {
       const available = env.getAvailableActions();
       const action = agent.act(state, available);
-      logSerializedState(serialized, action as RogueAction);
       const reward = env.step(action as RogueAction);
-      serialized = env.getState();
-      const nextState = flattenState(serialized);
+      const nextState = flattenState(env.getState());
       agent.remember(state, action, reward, nextState, env.terminated);
       state = nextState;
       await agent.replay();
@@ -143,8 +116,4 @@ async function runTraining(episodes = 10, maxSteps = 200) {
   await agent.model.save("file://dqn-model");
 }
 
-export { runTraining };
-
-if (import.meta.main) {
-  runTraining().catch(err => console.error(err));
-}
+runTraining().catch(err => console.error(err));
