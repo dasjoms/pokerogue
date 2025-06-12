@@ -73,8 +73,7 @@ if (typeof globalThis.window === 'undefined') {
   const patched = (console as any).__headlessPatched;
   if (!patched) {
     const originalWarn = console.warn.bind(console);
-    const originalLog = console.log.bind(console);
-    (console as any).__headlessPatched = { warn: originalWarn, log: originalLog };
+    (console as any).__headlessPatched = { warn: originalWarn };
 
     console.warn = (...args: any[]) => {
       const msg = args[0];
@@ -84,13 +83,6 @@ if (typeof globalThis.window === 'undefined') {
       originalWarn(...args);
     };
 
-    console.log = (...args: any[]) => {
-      const msg = args[0];
-      if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
-        return;
-      }
-      originalLog(...args);
-    };
   }
 }
 
