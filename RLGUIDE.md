@@ -88,7 +88,38 @@ If no ball is available or the catch fails, nothing else happens.
 The mapping is implemented in `RogueEnv.step()` under the `RogueAction.BAG`
 branch.
 
-## 5. Recommended Workflow
+## 5. Battle Starts Without Opponents
+
+**Problem:** FIGHT commands appear to run but no damage is dealt. The log shows
+move selection yet the opposing side never loses HP.
+
+**Cause:** `initSceneWithoutEncounterPhase()` only creates the player party and
+an empty `Battle` object. `RogueEnv.reset()` invokes this helper and then
+immediately queues `TurnInitPhase`. Because no encounter has been generated, the
+call to `getMoveTargets()` inside `CommandPhase.handleCommand()` returns an
+empty array (see `src/phases/command-phase.ts` lines 182&#x2013;197). The selected
+move therefore fails silently.
+
+Relevant code:
+
+- `test/testUtils/gameManagerUtils.ts` – `initSceneWithoutEncounterPhase()`
+  populates starters but never calls `scene.newBattle()` or pushes a
+  `NewBattlePhase`.
+- `src/env/rogue-env.ts` – `reset()` queues `TurnInitPhase` right after scene
+  setup, before any enemy Pokémon exist.
+
+**Fix:** Start a new battle after initializing the scene. Insert
+
+```ts
+initSceneWithoutEncounterPhase(scene, starters);
+scene.newBattle();
+scene.currentBattle.incrementTurn();
+```
+
+in `RogueEnv.reset()` before pushing `TurnInitPhase`. This spawns the first
+enemy so FIGHT moves have valid targets and deal damage.
+
+## 6. Recommended Workflow
 
 1. Apply the moveset fix in `initSceneWithoutEncounterPhase()` or adjust
    `PlayerPokemon` construction so starters know moves.
