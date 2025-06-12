@@ -224,6 +224,7 @@ export class PhaseManager {
 
   private currentPhase: Phase | null = null;
   private standbyPhase: Phase | null = null;
+  private shiftPending = false;
 
   /* Phase Functions */
   getCurrentPhase(): Phase | null {
@@ -232,6 +233,14 @@ export class PhaseManager {
 
   getStandbyPhase(): Phase | null {
     return this.standbyPhase;
+  }
+
+  queueShift(): void {
+    this.shiftPending = true;
+  }
+
+  hasQueuedShift(): boolean {
+    return this.shiftPending;
   }
 
   /**
@@ -308,6 +317,7 @@ export class PhaseManager {
    * then removes first Phase and starts it
    */
   shiftPhase(): void {
+    this.shiftPending = false;
     if (this.standbyPhase) {
       this.currentPhase = this.standbyPhase;
       this.standbyPhase = null;

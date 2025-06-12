@@ -5,7 +5,7 @@ export abstract class Phase {
   start() {}
 
   end() {
-    globalScene.phaseManager.shiftPhase();
+    globalScene.phaseManager.queueShift();
   }
 
   /**
