@@ -81,6 +81,7 @@ import {
   PokemonHeldItemModifierType,
 } from "#app/modifier/modifier-type";
 import AbilityBar from "#app/ui/ability-bar";
+import StubAbilityBar from "#app/ui/stub-ability-bar";
 import {
   applyAbAttrs,
   applyPostBattleInitAbAttrs,
@@ -539,7 +540,6 @@ export default class BattleScene extends SceneBase {
     this.modifiers = [];
     this.enemyModifiers = [];
 
-    if (!headless) {
       this.modifierBar = new ModifierBar();
       this.modifierBar.setName("modifier-bar");
       this.add.existing(this.modifierBar);
@@ -566,11 +566,14 @@ export default class BattleScene extends SceneBase {
 
       this.fieldUI.add(this.pbTray);
       this.fieldUI.add(this.pbTrayEnemy);
-
-      this.abilityBar = new AbilityBar();
-      this.abilityBar.setName("ability-bar");
-      this.abilityBar.setup();
-      this.fieldUI.add(this.abilityBar);
+      if (!headless) {
+        this.abilityBar = new AbilityBar();
+        this.abilityBar.setName("ability-bar");
+        this.abilityBar.setup();
+        this.fieldUI.add(this.abilityBar);
+      } else {
+        this.abilityBar = new StubAbilityBar() as unknown as AbilityBar;
+      }
 
       this.partyExpBar = new PartyExpBar();
       this.partyExpBar.setName("party-exp-bar");
@@ -638,7 +641,6 @@ export default class BattleScene extends SceneBase {
       this.pokemonInfoContainer.setup();
 
       this.fieldUI.add(this.pokemonInfoContainer);
-    }
 
     this.party = [];
 
@@ -703,9 +705,7 @@ export default class BattleScene extends SceneBase {
 
     this.ui = ui;
 
-    if (!headless) {
-      ui.setup();
-    }
+    ui.setup();
 
     const defaultMoves = [MoveId.TACKLE, MoveId.TAIL_WHIP, MoveId.FOCUS_ENERGY, MoveId.STRUGGLE];
 

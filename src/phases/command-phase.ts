@@ -329,7 +329,10 @@ export class CommandPhase extends FieldPhase {
                 cursor: cursor,
               };
               globalScene.currentBattle.turnCommands[this.fieldIndex]!.targets = targets;
-              if (this.fieldIndex) {
+              if (
+                this.fieldIndex &&
+                globalScene.currentBattle.turnCommands[this.fieldIndex - 1]
+              ) {
                 globalScene.currentBattle.turnCommands[this.fieldIndex - 1]!.skip = true;
               }
               success = true;
@@ -384,7 +387,11 @@ export class CommandPhase extends FieldPhase {
               ? { command: Command.POKEMON, cursor: cursor, args: args }
               : { command: Command.RUN };
             success = true;
-            if (!isSwitch && this.fieldIndex) {
+            if (
+              !isSwitch &&
+              this.fieldIndex &&
+              currentBattle.turnCommands[this.fieldIndex - 1]
+            ) {
               currentBattle.turnCommands[this.fieldIndex - 1]!.skip = true;
             }
           } else if (trappedAbMessages.length > 0) {
