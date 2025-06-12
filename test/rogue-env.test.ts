@@ -516,3 +516,19 @@ describe("benchmark utility", () => {
     vi.resetModules();
   });
 });
+
+describe("dqn script logging", () => {
+  it("should log state and action", async () => {
+    const env = new RogueEnv();
+    env.reset();
+    const state = env.getState();
+    const logs: string[] = [];
+    const orig = console.log;
+    console.log = (msg: any) => { logs.push(String(msg)); };
+    const { logSerializedState } = await import("../scripts/rogue-env-dqn.ts");
+    logSerializedState(state, RogueAction.FIGHT_1);
+    console.log = orig;
+    const entry = logs.find(l => l.trim().startsWith("{"));
+    expect(entry).toBeDefined();
+  });
+});
