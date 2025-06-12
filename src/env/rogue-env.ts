@@ -21,6 +21,7 @@ import { initMoves } from "#app/data/moves/move";
 import { initPokemonForms } from "#app/data/pokemon-forms";
 import { initSpecies } from "#app/data/pokemon-species";
 import { initAbilities } from "#app/data/abilities/ability";
+import TextInterceptor from "#test/testUtils/TextInterceptor";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -166,6 +167,8 @@ export default class RogueEnv {
     this.scene = new BattleScene();
     this.wrapper = new GameWrapper(this.game, true);
     this.wrapper.setScene(this.scene);
+    // Attach a simple text interceptor so UI text calls do not fail
+    new TextInterceptor(this.scene);
     const originalPush = this.scene.phaseManager.pushNew.bind(this.scene.phaseManager);
     this.scene.phaseManager.pushNew = (phase: string, ...args: any[]) => {
       if (phase === "LoginPhase" || phase === "TitlePhase") {
@@ -368,8 +371,8 @@ export default class RogueEnv {
     const phase = this.scene.phaseManager.getCurrentPhase();
     const actions: RogueAction[] = [];
     if (phase instanceof CommandPhase) {
-      const pokemon = phase.getPokemon();
-      const moves = pokemon.getMoveset();
+      const pokemon = phase.getPokemon?.();
+      const moves = pokemon?.getMoveset?.() ?? [];
       for (let i = 0; i < Math.min(4, moves.length); i++) {
         if (pokemon.trySelectMove(i)) {
           actions.push(RogueAction.FIGHT_1 + i);
@@ -428,7 +431,7 @@ export default class RogueEnv {
       }
     } else if (phase?.constructor.name === "LearnMovePhase") {
       const pokemon = phase.getPokemon?.() as any;
-      if (pokemon?.getMoveset().length >= 4) {
+      if (pokemon?.getMoveset?.().length >= 4) {
         actions.push(
           RogueAction.LEARN_REJECT,
           RogueAction.LEARN_REPLACE_1,

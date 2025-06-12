@@ -449,11 +449,13 @@ export default class BattleScene extends SceneBase {
 
     this.load.setBaseURL();
 
-    this.spritePipeline = new SpritePipeline(this.game);
-    (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer).pipelines.add("Sprite", this.spritePipeline);
+    if (!headless) {
+      this.spritePipeline = new SpritePipeline(this.game);
+      (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer).pipelines.add("Sprite", this.spritePipeline);
 
-    this.fieldSpritePipeline = new FieldSpritePipeline(this.game);
-    (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer).pipelines.add("FieldSprite", this.fieldSpritePipeline);
+      this.fieldSpritePipeline = new FieldSpritePipeline(this.game);
+      (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer).pipelines.add("FieldSprite", this.fieldSpritePipeline);
+    }
 
     this.launchBattle();
   }
@@ -1217,16 +1219,16 @@ export default class BattleScene extends SceneBase {
     console.log("Seed:", this.seed);
     this.resetSeed();
 
-    this.biomeWaveText.setText(startingWave.toString());
-    this.biomeWaveText.setVisible(false);
+    this.biomeWaveText?.setText(startingWave.toString());
+    this.biomeWaveText?.setVisible(false);
 
     this.updateMoneyText();
-    this.moneyText.setVisible(false);
+    this.moneyText?.setVisible(false);
 
     this.updateScoreText();
-    this.scoreText.setVisible(false);
+    this.scoreText?.setVisible(false);
 
-    [this.luckLabelText, this.luckText].map(t => t.setVisible(false));
+    [this.luckLabelText, this.luckText].forEach(t => t?.setVisible(false));
 
     this.newArena(Overrides.STARTING_BIOME_OVERRIDE || BiomeId.TOWN);
 
@@ -1931,7 +1933,7 @@ export default class BattleScene extends SceneBase {
       teraColor: pokemon ? getTypeRgb(pokemon.getTeraType()) : undefined,
       isTerastallized: pokemon ? pokemon.isTerastallized : false,
     });
-    this.spriteSparkleHandler.add(sprite);
+    this.spriteSparkleHandler?.add(sprite);
     return sprite;
   }
 
@@ -2023,10 +2025,12 @@ export default class BattleScene extends SceneBase {
       return;
     }
     const formattedMoney = formatMoney(this.moneyFormat, this.money);
-    this.moneyText.setText(i18next.t("battleScene:moneyOwned", { formattedMoney }));
-    this.fieldUI.moveAbove(this.moneyText, this.luckText);
-    if (forceVisible) {
-      this.moneyText.setVisible(true);
+    this.moneyText?.setText(i18next.t("battleScene:moneyOwned", { formattedMoney }));
+    if (this.moneyText) {
+      this.fieldUI.moveAbove(this.moneyText, this.luckText);
+      if (forceVisible) {
+        this.moneyText.setVisible(true);
+      }
     }
   }
 
@@ -2047,8 +2051,8 @@ export default class BattleScene extends SceneBase {
   }
 
   updateScoreText(): void {
-    this.scoreText.setText(`Score: ${this.score.toString()}`);
-    this.scoreText.setVisible(this.gameMode.isDaily);
+    this.scoreText?.setText(`Score: ${this.score.toString()}`);
+    this.scoreText?.setVisible(this.gameMode.isDaily);
   }
 
   /**

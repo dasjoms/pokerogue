@@ -4,9 +4,18 @@ import type { SerializedState } from "#app/utils/serialize";
 import { tensor, train, layers, sequential, type LayersModel, dispose } from "@tensorflow/tfjs-node";
 
 function flattenState(state: SerializedState): number[] {
-  const player = state.playerParty[state.playerActive[0]];
-  const enemy = state.enemyParty[state.enemyActive[0]];
-  return [state.turn, state.wave, player.hp / player.maxHp, enemy.hp / enemy.maxHp, player.level, enemy.level];
+  const getMon = (party: any[], active: number[]): any | undefined => {
+    const idx = active?.[0];
+    if (idx === undefined || idx < 0 || idx >= party.length) return undefined;
+    return party[idx];
+  };
+  const player = getMon(state.playerParty, state.playerActive);
+  const enemy = getMon(state.enemyParty, state.enemyActive);
+  const playerHp = player ? player.hp / player.maxHp : 0;
+  const enemyHp = enemy ? enemy.hp / enemy.maxHp : 0;
+  const playerLevel = player?.level ?? 0;
+  const enemyLevel = enemy?.level ?? 0;
+  return [state.turn, state.wave, playerHp, enemyHp, playerLevel, enemyLevel];
 }
 
 const INPUT_SIZE = 6;
