@@ -127,6 +127,7 @@ export function initSceneWithoutEncounterPhase(scene: BattleScene, species?: Spe
       starterIvs,
       starter.nature,
     );
+    starterPokemon.generateAndPopulateMoveset();
     starter.moveset && starterPokemon.tryPopulateMoveset(starter.moveset);
     scene.getPlayerParty().push(starterPokemon);
   });
