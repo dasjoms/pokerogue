@@ -1,4 +1,5 @@
 import { globalScene } from "#app/global-scene";
+import { headless } from "#app/global-vars/headless";
 import type { BattlerIndex } from "#enums/battler-index";
 import {
   applyAbAttrs,
@@ -257,7 +258,7 @@ export class StatStageChangePhase extends PokemonPhase {
       handleTutorial(Tutorial.Stat_Change).then(() => super.end());
     };
 
-    if (relLevels.filter(l => l).length && globalScene.moveAnimations) {
+    if (!headless && relLevels.filter(l => l).length && globalScene.moveAnimations && pokemon.maskSprite) {
       pokemon.enableMask();
       const pokemonMaskSprite = pokemon.maskSprite;
 
