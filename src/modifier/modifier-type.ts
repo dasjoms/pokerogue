@@ -3687,7 +3687,7 @@ function getNewModifierTypeOption(
     }
   }
 
-  if (index === undefined) {
+  if (index === undefined || index >= pool[tier].length) {
     return null;
   }
 

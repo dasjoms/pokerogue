@@ -372,6 +372,10 @@ export class EncounterPhase extends BattlePhase {
   getEncounterMessage(): string {
     const enemyField = globalScene.getEnemyField();
 
+    if (enemyField.length === 0) {
+      return "";
+    }
+
     if (globalScene.currentBattle.battleSpec === BattleSpec.FINAL_BOSS) {
       return i18next.t("battle:bossAppeared", {
         bossName: getPokemonNameWithAffix(enemyField[0]),
@@ -412,8 +416,9 @@ export class EncounterPhase extends BattlePhase {
         }
       }
       globalScene.updateFieldScale();
-      if (showEncounterMessage) {
-        globalScene.ui.showText(this.getEncounterMessage(), null, () => this.end(), 1500);
+      const message = this.getEncounterMessage();
+      if (showEncounterMessage && message) {
+        globalScene.ui.showText(message, null, () => this.end(), 1500);
       } else {
         this.end();
       }

@@ -1206,14 +1206,20 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
    * @param animConfig {@linkcode String} to pass to {@linkcode Phaser.GameObjects.Sprite.play}
    * @returns true if the sprite was able to be animated
    */
-  tryPlaySprite(sprite: Phaser.GameObjects.Sprite, tintSprite: Phaser.GameObjects.Sprite, key: string): boolean {
+  tryPlaySprite(
+    sprite: Phaser.GameObjects.Sprite | null | undefined,
+    tintSprite: Phaser.GameObjects.Sprite | null | undefined,
+    key: string,
+  ): boolean {
+    if (!sprite || !tintSprite) {
+      return false;
+    }
     // Catch errors when trying to play an animation that doesn't exist
     try {
       sprite.play(key);
       tintSprite.play(key);
     } catch (error: unknown) {
       console.error(`Couldn't play animation for '${key}'!\nIs the image for this Pokemon missing?\n`, error);
-
       return false;
     }
 
@@ -1221,7 +1227,7 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
   }
 
   playAnim(): void {
-    this.tryPlaySprite(this.getSprite(), this.getTintSprite()!, this.getBattleSpriteKey()); // TODO: is the bang correct?
+    this.tryPlaySprite(this.getSprite(), this.getTintSprite(), this.getBattleSpriteKey());
   }
 
   getFieldPositionOffset(): [number, number] {
