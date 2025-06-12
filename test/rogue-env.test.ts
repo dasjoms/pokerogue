@@ -388,10 +388,16 @@ describe("rogue-env parity", () => {
       }
     }
     scene.phaseManager.shiftPhase();
+    while (scene.phaseManager.hasQueuedShift()) {
+      scene.phaseManager.shiftPhase();
+    }
     let p = scene.phaseManager.getCurrentPhase();
     let safety = 0;
     while (p && !(p instanceof CommandPhase) && safety < 100) {
       scene.phaseManager.shiftPhase();
+      while (scene.phaseManager.hasQueuedShift()) {
+        scene.phaseManager.shiftPhase();
+      }
       p = scene.phaseManager.getCurrentPhase();
       safety++;
     }
@@ -484,6 +490,9 @@ describe("rogue-env parity", () => {
     scene.phaseManager.clearAllPhases();
     scene.phaseManager.pushNew("TurnInitPhase");
     scene.phaseManager.shiftPhase();
+    while (scene.phaseManager.hasQueuedShift()) {
+      scene.phaseManager.shiftPhase();
+    }
 
     const states = [getState(scene)];
     for (const act of actions) {

@@ -196,6 +196,9 @@ export default class RogueEnv {
     this.scene.phaseManager.clearAllPhases();
     this.scene.phaseManager.pushNew("TurnInitPhase");
     this.scene.phaseManager.shiftPhase();
+    while (this.scene.phaseManager.hasQueuedShift()) {
+      this.scene.phaseManager.shiftPhase();
+    }
   }
 
   /**
@@ -323,10 +326,16 @@ export default class RogueEnv {
       }
 
       this.scene.phaseManager.shiftPhase();
+      while (this.scene.phaseManager.hasQueuedShift()) {
+        this.scene.phaseManager.shiftPhase();
+      }
       let phase = this.scene.phaseManager.getCurrentPhase();
       let safety = 0;
       while (phase && !(phase instanceof CommandPhase) && safety < 100) {
         this.scene.phaseManager.shiftPhase();
+        while (this.scene.phaseManager.hasQueuedShift()) {
+          this.scene.phaseManager.shiftPhase();
+        }
         phase = this.scene.phaseManager.getCurrentPhase();
         safety++;
       }
