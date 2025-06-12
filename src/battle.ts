@@ -439,7 +439,6 @@ export default class Battle {
       Phaser.Math.RND.state(this.battleSeedState);
     } else {
       Phaser.Math.RND.sow([shiftCharCodes(this.battleSeed, this.turn << 6)]);
-      console.log("Battle Seed:", this.battleSeed);
     }
     globalScene.rngCounter = this.rngCounter++;
     globalScene.rngSeedOverride = this.battleSeed;

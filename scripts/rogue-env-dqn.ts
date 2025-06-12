@@ -97,8 +97,14 @@ class DQNAgent {
   }
 }
 
-async function runTraining(episodes = 10, maxSteps = 200, modelPath = "dqn-model", logPath?: string) {
-  const env = new RogueEnv();
+async function runTraining(
+  episodes = 10,
+  maxSteps = 200,
+  modelPath = "dqn-model",
+  logPath?: string,
+  seed?: string,
+) {
+  const env = new RogueEnv(seed);
   const logger = new TransitionLogger();
   env.logger = logger;
   const agent = new DQNAgent();
@@ -131,5 +137,6 @@ const episodes = Number.parseInt(process.argv[2] ?? process.env.ROGUE_EPISODES ?
 const maxSteps = Number.parseInt(process.argv[3] ?? process.env.ROGUE_MAX_STEPS ?? "200", 10);
 const modelPath = process.argv[4] ?? process.env.ROGUE_MODEL_PATH ?? "dqn-model";
 const logPath = process.argv[5] ?? process.env.ROGUE_LOG_PATH;
+const seed = process.argv[6] ?? process.env.ROGUE_SEED;
 
-runTraining(episodes, maxSteps, modelPath, logPath).catch(err => console.error(err));
+runTraining(episodes, maxSteps, modelPath, logPath, seed).catch(err => console.error(err));

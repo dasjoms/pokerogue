@@ -136,7 +136,6 @@ export class MovePhase extends BattlePhase {
   public start(): void {
     super.start();
 
-    console.log(MoveId[this.move.moveId]);
 
     // Check if move is unusable (e.g. because it's out of PP due to a mid-turn Spite).
     if (!this.canMove(true)) {

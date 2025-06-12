@@ -6353,7 +6353,7 @@ export class EnemyPokemon extends Pokemon {
             moveScores[m] = moveScore;
           }
 
-          console.log(moveScores);
+
 
           // Sort the move pool in decreasing order of move score
           const sortedMovePool = movePool.slice(0);
@@ -6384,12 +6384,7 @@ export class EnemyPokemon extends Pokemon {
               r++;
             }
           }
-          console.log(
-            movePool.map(m => m.getName()),
-            moveScores,
-            r,
-            sortedMovePool.map(m => m.getName()),
-          );
+          // Log statements removed for headless execution stability
           return { move: sortedMovePool[r]!.moveId, targets: moveTargets[sortedMovePool[r]!.moveId] };
         }
       }
