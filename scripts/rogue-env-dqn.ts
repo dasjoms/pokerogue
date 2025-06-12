@@ -1,6 +1,7 @@
 import "./headless-globals";
-import { RogueEnv, type RogueAction } from "#env";
+import { RogueEnv, type RogueAction, TransitionLogger } from "#env";
 import type { SerializedState } from "#app/utils/serialize";
+import { resolve } from "node:path";
 import { tensor, train, layers, sequential, type LayersModel, dispose } from "@tensorflow/tfjs-node";
 
 function flattenState(state: SerializedState): number[] {
@@ -96,8 +97,10 @@ class DQNAgent {
   }
 }
 
-async function runTraining(episodes = 10, maxSteps = 200) {
+async function runTraining(episodes = 10, maxSteps = 200, modelPath = "dqn-model", logPath?: string) {
   const env = new RogueEnv();
+  const logger = new TransitionLogger();
+  env.logger = logger;
   const agent = new DQNAgent();
   for (let ep = 0; ep < episodes; ep++) {
     env.reset();
@@ -113,7 +116,20 @@ async function runTraining(episodes = 10, maxSteps = 200) {
     }
     console.log(`Episode ${ep + 1} complete`);
   }
-  await agent.model.save("file://dqn-model");
+  const modelDir = resolve(modelPath);
+  await agent.model.save(`file://${modelDir}`);
+  console.log(`Model saved to ${modelDir}`);
+  if (logPath) {
+    const logFile = resolve(logPath);
+    const compress = logFile.endsWith('.gz');
+    await logger.saveToFile(logFile, compress);
+    console.log(`Training log saved to ${logFile}`);
+  }
 }
 
-runTraining().catch(err => console.error(err));
+const episodes = Number.parseInt(process.argv[2] ?? process.env.ROGUE_EPISODES ?? "10", 10);
+const maxSteps = Number.parseInt(process.argv[3] ?? process.env.ROGUE_MAX_STEPS ?? "200", 10);
+const modelPath = process.argv[4] ?? process.env.ROGUE_MODEL_PATH ?? "dqn-model";
+const logPath = process.argv[5] ?? process.env.ROGUE_LOG_PATH;
+
+runTraining(episodes, maxSteps, modelPath, logPath).catch(err => console.error(err));
