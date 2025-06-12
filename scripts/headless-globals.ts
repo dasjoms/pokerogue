@@ -70,23 +70,28 @@ if (typeof globalThis.window === 'undefined') {
     /variant icon does not exist/i,
   ];
 
-  const originalWarn = console.warn;
-  console.warn = (...args: any[]) => {
-    const msg = args[0];
-    if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
-      return;
-    }
-    originalWarn(...args);
-  };
+  const patched = (console as any).__headlessPatched;
+  if (!patched) {
+    const originalWarn = console.warn.bind(console);
+    const originalLog = console.log.bind(console);
+    (console as any).__headlessPatched = { warn: originalWarn, log: originalLog };
 
-  const originalLog = console.log;
-  console.log = (...args: any[]) => {
-    const msg = args[0];
-    if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
-      return;
-    }
-    originalLog(...args);
-  };
+    console.warn = (...args: any[]) => {
+      const msg = args[0];
+      if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
+        return;
+      }
+      originalWarn(...args);
+    };
+
+    console.log = (...args: any[]) => {
+      const msg = args[0];
+      if (typeof msg === 'string' && assetWarningPatterns.some(p => p.test(msg))) {
+        return;
+      }
+      originalLog(...args);
+    };
+  }
 }
 
 export {};
