@@ -1,1 +1,2 @@
-export const isBeta = import.meta.env.MODE === "beta"; // this checks to see if the env mode is development. Technically this gives the same value for beta AND for dev envs
+export const isBeta =
+  typeof import.meta !== "undefined" && import.meta.env && import.meta.env.MODE === "beta";

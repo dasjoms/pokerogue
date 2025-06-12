@@ -90,7 +90,11 @@ export default class LoginFormUiHandler extends FormModalUiHandler {
 
   override getModalTitle(_config?: ModalConfig): string {
     let key = "menu:login";
-    if (import.meta.env.VITE_SERVER_URL === "https://apibeta.pokerogue.net") {
+    if (
+      typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      import.meta.env.VITE_SERVER_URL === "https://apibeta.pokerogue.net"
+    ) {
       key = "menu:loginBeta";
     }
     return i18next.t(key);

@@ -11,7 +11,6 @@ import MockLoader from "#test/testUtils/mocks/mockLoader";
 import MockTextureManager from "#test/testUtils/mocks/mockTextureManager";
 import fs from "node:fs";
 import Phaser from "phaser";
-import { vi } from "vitest";
 import { version } from "../../package.json";
 import { MockGameObjectCreator } from "./mocks/mockGameObjectCreator";
 import { MockTimedEventManager } from "./mocks/mockTimedEventManager";
@@ -24,7 +23,7 @@ import UpdateList = Phaser.GameObjects.UpdateList;
 import { PokedexMonContainer } from "#app/ui/pokedex-mon-container";
 import MockContainer from "./mocks/mocksContainer/mockContainer";
 // biome-ignore lint/style/noNamespaceImport: Necessary in order to mock the var
-import * as bypassLoginModule from "#app/global-vars/bypass-login";
+import { bypassLogin } from "#app/global-vars/bypass-login";
 
 window.URL.createObjectURL = (blob: Blob) => {
   blobToString(blob).then((data: string) => {
@@ -33,7 +32,7 @@ window.URL.createObjectURL = (blob: Blob) => {
   return null;
 };
 navigator.getGamepads = () => [];
-global.fetch = vi.fn(MockFetch);
+global.fetch = MockFetch as any;
 setCookie(sessionIdKey, "fake_token");
 
 window.matchMedia = () => ({
@@ -46,9 +45,8 @@ export default class GameWrapper {
 
   constructor(phaserGame: Phaser.Game, bypassLogin: boolean) {
     Phaser.Math.RND.sow(["test"]);
-    // vi.spyOn(Utils, "apiFetch", "get").mockReturnValue(fetch);
     if (bypassLogin) {
-      vi.spyOn(bypassLoginModule, "bypassLogin", "get").mockReturnValue(true);
+      (bypassLogin as any) = true;
     }
     this.game = phaserGame;
     MoveAnim.prototype.getAnim = () => ({
@@ -210,7 +208,7 @@ export default class GameWrapper {
     };
     this.scene.make = new MockGameObjectCreator(mockTextureManager);
     this.scene.time = new MockClock(this.scene);
-    this.scene.remove = vi.fn(); // TODO: this should be stubbed differently
+    this.scene.remove = () => {}; // stubbed for headless usage
     this.scene.eventManager = new MockTimedEventManager(); // Disable Timed Events
   }
 }

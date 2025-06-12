@@ -284,7 +284,9 @@ export const isLocal =
  * @deprecated Refer to [pokerogue-api.ts](./plugins/api/pokerogue-api.ts) instead
  */
 export const localServerUrl =
-  import.meta.env.VITE_SERVER_URL ?? `http://${window.location.hostname}:${window.location.port + 1}`;
+  typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SERVER_URL
+    ? import.meta.env.VITE_SERVER_URL
+    : `http://${window.location.hostname}:${window.location.port + 1}`;
 
 /**
  * Set the server URL based on whether it's local or not

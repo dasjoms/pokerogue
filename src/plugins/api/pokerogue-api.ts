@@ -78,4 +78,8 @@ export class PokerogueApi extends ApiBase {
   //#endregion
 }
 
-export const pokerogueApi = new PokerogueApi(import.meta.env.VITE_SERVER_URL ?? "http://localhost:8001");
+export const pokerogueApi = new PokerogueApi(
+  typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SERVER_URL
+    ? import.meta.env.VITE_SERVER_URL
+    : "http://localhost:8001",
+);
