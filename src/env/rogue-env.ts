@@ -191,9 +191,14 @@ export default class RogueEnv {
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
     this.scene.eggSkipPreference = 2;
-    initSceneWithoutEncounterPhase(this.scene, [SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
-    this.scene.currentBattle.incrementTurn();
+    initSceneWithoutEncounterPhase(this.scene, [
+      SpeciesId.SQUIRTLE,
+      SpeciesId.BULBASAUR,
+      SpeciesId.CHARMANDER,
+    ]);
     this.scene.phaseManager.clearAllPhases();
+    this.scene.newBattle();
+    this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.pushNew("TurnInitPhase");
     this.scene.phaseManager.shiftPhase();
     while (this.scene.phaseManager.hasQueuedShift()) {
@@ -330,8 +335,21 @@ export default class RogueEnv {
         this.scene.phaseManager.shiftPhase();
       }
       let phase = this.scene.phaseManager.getCurrentPhase();
+      const needsInput = new Set([
+        "SwitchPhase",
+        "SelectTargetPhase",
+        "LearnMovePhase",
+        "SelectModifierPhase",
+        "SelectBiomePhase",
+        "SelectChallengePhase",
+      ]);
       let safety = 0;
-      while (phase && !(phase instanceof CommandPhase) && safety < 100) {
+      while (
+        phase &&
+        !(phase instanceof CommandPhase) &&
+        !needsInput.has(phase.constructor.name) &&
+        safety < 100
+      ) {
         this.scene.phaseManager.shiftPhase();
         while (this.scene.phaseManager.hasQueuedShift()) {
           this.scene.phaseManager.shiftPhase();
