@@ -97,21 +97,45 @@ class DQNAgent {
   }
 }
 
-async function runTraining(
-  episodes = 10,
-  maxSteps = 200,
-  modelPath = "dqn-model",
-  logPath?: string,
-  seed?: string,
-) {
+  async function runTraining(
+    episodes = 10,
+    maxSteps = 200,
+    modelPath = "dqn-model",
+    logPath?: string,
+    seed?: string,
+  ) {
   const env = new RogueEnv(seed);
   const logger = new TransitionLogger();
   env.logger = logger;
   const agent = new DQNAgent();
-  for (let ep = 0; ep < episodes; ep++) {
+
+  let interrupted = false;
+  const saveProgress = async () => {
+    const modelDir = resolve(modelPath);
+    await agent.model.save(`file://${modelDir}`);
+    console.log(`Model saved to ${modelDir}`);
+    if (logPath) {
+      const logFile = resolve(logPath);
+      const compress = logFile.endsWith('.gz');
+      await logger.saveToFile(logFile, compress);
+      console.log(`Training log saved to ${logFile}`);
+    }
+  };
+
+  const handleInterrupt = async () => {
+    if (interrupted) return;
+    interrupted = true;
+    console.log("Interrupted, saving progress...");
+    await saveProgress();
+    process.exit();
+  };
+  process.once('SIGINT', handleInterrupt);
+  process.once('SIGTERM', handleInterrupt);
+
+  for (let ep = 0; ep < episodes && !interrupted; ep++) {
     env.reset();
     let state = flattenState(env.getState());
-    for (let t = 0; t < maxSteps && !env.terminated; t++) {
+    for (let t = 0; t < maxSteps && !env.terminated && !interrupted; t++) {
       const available = env.getAvailableActions();
       const action = agent.act(state, available);
       const reward = env.step(action as RogueAction);
@@ -122,16 +146,11 @@ async function runTraining(
     }
     console.log(`Episode ${ep + 1} complete`);
   }
-  const modelDir = resolve(modelPath);
-  await agent.model.save(`file://${modelDir}`);
-  console.log(`Model saved to ${modelDir}`);
-  if (logPath) {
-    const logFile = resolve(logPath);
-    const compress = logFile.endsWith('.gz');
-    await logger.saveToFile(logFile, compress);
-    console.log(`Training log saved to ${logFile}`);
+
+  if (!interrupted) {
+    await saveProgress();
   }
-}
+  }
 
 const episodes = Number.parseInt(process.argv[2] ?? process.env.ROGUE_EPISODES ?? "10", 10);
 const maxSteps = Number.parseInt(process.argv[3] ?? process.env.ROGUE_MAX_STEPS ?? "200", 10);
