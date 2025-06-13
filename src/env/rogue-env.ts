@@ -225,6 +225,7 @@ export default class RogueEnv {
     while (this.scene.phaseManager.hasQueuedShift()) {
       this.scene.phaseManager.shiftPhase();
     }
+    this.flushTimers();
   }
 
   /**
@@ -232,6 +233,21 @@ export default class RogueEnv {
    */
   terminate(): void {
     this.terminated = true;
+  }
+
+  /**
+   * Flush pending timed events so asynchronous phase callbacks execute
+   * before the next state snapshot is taken.
+   */
+  private flushTimers(iterations = 5): void {
+    const clock: any = this.scene.time as any;
+    for (let i = 0; i < iterations; i++) {
+      clock.preUpdate(clock.systems.game.loop.time, 1);
+      clock.update(clock.systems.game.loop.time, 1);
+      if (!clock._pendingInsertion.length && !clock._active.length) {
+        break;
+      }
+    }
   }
 
   /**
@@ -247,6 +263,7 @@ export default class RogueEnv {
     }
     let total = 0;
     for (let i = 0; i < fastForward; i++) {
+      this.flushTimers();
       const prevState = this.getState();
 
       if (typeof action === "number") {
@@ -357,6 +374,7 @@ export default class RogueEnv {
       while (this.scene.phaseManager.hasQueuedShift()) {
         this.scene.phaseManager.shiftPhase();
       }
+      this.flushTimers();
       let phase = this.scene.phaseManager.getCurrentPhase();
       const needsInput = new Set([
         "SwitchPhase",
@@ -372,6 +390,7 @@ export default class RogueEnv {
         while (this.scene.phaseManager.hasQueuedShift()) {
           this.scene.phaseManager.shiftPhase();
         }
+        this.flushTimers();
         phase = this.scene.phaseManager.getCurrentPhase();
         safety++;
       }
@@ -395,6 +414,8 @@ export default class RogueEnv {
       }
 
       total += stepReward;
+
+      this.flushTimers();
 
       if (this.terminated) {
         break;
