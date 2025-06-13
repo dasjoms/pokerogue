@@ -139,7 +139,7 @@ export default class RogueEnv {
 
   constructor(
     seed?: string,
-    private startingMoney = 0,
+    private startingMoney = 500,
   ) {
     this.seed = seed ?? randomString(24);
     // Minimal data initialization mimicking the test setup
@@ -407,6 +407,9 @@ export default class RogueEnv {
       if (typeof action === "number" && action === RogueAction.RUN && nextState.wave > prevState.wave) {
         const prevEnemyHp = prevState.enemyParty.reduce((s, p) => s + p.hp, 0);
         computed -= prevEnemyHp * DEFAULT_WEIGHTS.damageDealt;
+      }
+      if (prevState.phase === "SelectModifierPhase" && nextState.money < prevState.money) {
+        computed += 5;
       }
       if (nextState.wave > prevState.wave && !(typeof action === "number" && action === RogueAction.RUN)) {
         this.scene.addMoney(this.scene.getWaveMoneyAmount(nextState.wave - prevState.wave));

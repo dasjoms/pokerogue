@@ -3472,29 +3472,89 @@ export function getPlayerShopModifierTypeOptionsForWave(waveIndex: number, baseC
 
   const options = [
     [
-      new ModifierTypeOption(modifierTypes.POTION(), 0, baseCost * 0.2),
-      new ModifierTypeOption(modifierTypes.ETHER(), 0, baseCost * 0.4),
-      new ModifierTypeOption(modifierTypes.REVIVE(), 0, baseCost * 2),
+      new ModifierTypeOption(
+        modifierTypes.POTION().withIdFromFunc(modifierTypes.POTION).withTierFromPool(),
+        0,
+        baseCost * 0.2,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.ETHER().withIdFromFunc(modifierTypes.ETHER).withTierFromPool(),
+        0,
+        baseCost * 0.4,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.REVIVE().withIdFromFunc(modifierTypes.REVIVE).withTierFromPool(),
+        0,
+        baseCost * 2,
+      ),
     ],
     [
-      new ModifierTypeOption(modifierTypes.SUPER_POTION(), 0, baseCost * 0.45),
-      new ModifierTypeOption(modifierTypes.FULL_HEAL(), 0, baseCost),
+      new ModifierTypeOption(
+        modifierTypes.SUPER_POTION().withIdFromFunc(modifierTypes.SUPER_POTION).withTierFromPool(),
+        0,
+        baseCost * 0.45,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.FULL_HEAL().withIdFromFunc(modifierTypes.FULL_HEAL).withTierFromPool(),
+        0,
+        baseCost,
+      ),
     ],
     [
-      new ModifierTypeOption(modifierTypes.ELIXIR(), 0, baseCost),
-      new ModifierTypeOption(modifierTypes.MAX_ETHER(), 0, baseCost),
+      new ModifierTypeOption(
+        modifierTypes.ELIXIR().withIdFromFunc(modifierTypes.ELIXIR).withTierFromPool(),
+        0,
+        baseCost,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.MAX_ETHER().withIdFromFunc(modifierTypes.MAX_ETHER).withTierFromPool(),
+        0,
+        baseCost,
+      ),
     ],
     [
-      new ModifierTypeOption(modifierTypes.HYPER_POTION(), 0, baseCost * 0.8),
-      new ModifierTypeOption(modifierTypes.MAX_REVIVE(), 0, baseCost * 2.75),
-      new ModifierTypeOption(modifierTypes.MEMORY_MUSHROOM(), 0, baseCost * 4),
+      new ModifierTypeOption(
+        modifierTypes.HYPER_POTION().withIdFromFunc(modifierTypes.HYPER_POTION).withTierFromPool(),
+        0,
+        baseCost * 0.8,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.MAX_REVIVE().withIdFromFunc(modifierTypes.MAX_REVIVE).withTierFromPool(),
+        0,
+        baseCost * 2.75,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.MEMORY_MUSHROOM().withIdFromFunc(modifierTypes.MEMORY_MUSHROOM).withTierFromPool(),
+        0,
+        baseCost * 4,
+      ),
     ],
     [
-      new ModifierTypeOption(modifierTypes.MAX_POTION(), 0, baseCost * 1.5),
-      new ModifierTypeOption(modifierTypes.MAX_ELIXIR(), 0, baseCost * 2.5),
+      new ModifierTypeOption(
+        modifierTypes.MAX_POTION().withIdFromFunc(modifierTypes.MAX_POTION).withTierFromPool(),
+        0,
+        baseCost * 1.5,
+      ),
+      new ModifierTypeOption(
+        modifierTypes.MAX_ELIXIR().withIdFromFunc(modifierTypes.MAX_ELIXIR).withTierFromPool(),
+        0,
+        baseCost * 2.5,
+      ),
     ],
-    [new ModifierTypeOption(modifierTypes.FULL_RESTORE(), 0, baseCost * 2.25)],
-    [new ModifierTypeOption(modifierTypes.SACRED_ASH(), 0, baseCost * 10)],
+    [
+      new ModifierTypeOption(
+        modifierTypes.FULL_RESTORE().withIdFromFunc(modifierTypes.FULL_RESTORE).withTierFromPool(),
+        0,
+        baseCost * 2.25,
+      ),
+    ],
+    [
+      new ModifierTypeOption(
+        modifierTypes.SACRED_ASH().withIdFromFunc(modifierTypes.SACRED_ASH).withTierFromPool(),
+        0,
+        baseCost * 10,
+      ),
+    ],
   ];
   return options.slice(0, Math.ceil(Math.max(waveIndex + 10, 0) / 30)).flat();
 }
