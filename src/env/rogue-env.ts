@@ -7,7 +7,7 @@ import { randomString } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
 import type TransitionLogger from "#env/transition-logger";
 import type { TransitionRecord } from "#env/transition-logger";
-import { computeStepReward } from "#env/reward";
+import { computeStepReward, DEFAULT_WEIGHTS } from "#env/reward";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
@@ -399,7 +399,14 @@ export default class RogueEnv {
       if (nextState.phase === "VictoryPhase" || nextState.phase === "GameOverPhase") {
         this.terminated = true;
       }
-      const computed = computeStepReward(prevState, nextState);
+      let computed = computeStepReward(prevState, nextState);
+      if (
+        typeof action === "number" &&
+        action === RogueAction.RUN &&
+        nextState.wave > prevState.wave
+      ) {
+        computed -= DEFAULT_WEIGHTS.waveCleared;
+      }
       const stepReward = reward === undefined ? computed : reward;
 
       if (this.logger) {
