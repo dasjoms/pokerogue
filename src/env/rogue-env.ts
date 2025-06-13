@@ -408,8 +408,8 @@ export default class RogueEnv {
         const prevEnemyHp = prevState.enemyParty.reduce((s, p) => s + p.hp, 0);
         computed -= prevEnemyHp * DEFAULT_WEIGHTS.damageDealt;
       }
-      if (nextState.wave > prevState.wave) {
-        this.scene.addMoney(this.scene.getWaveMoneyAmount(1));
+      if (nextState.wave > prevState.wave && !(typeof action === "number" && action === RogueAction.RUN)) {
+        this.scene.addMoney(this.scene.getWaveMoneyAmount(nextState.wave - prevState.wave));
       }
       const stepReward = reward === undefined ? computed : reward;
 
