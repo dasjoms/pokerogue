@@ -19,6 +19,9 @@ export default class TextInterceptor {
   ): void {
     // Suppress console output during headless execution
     this.logs.push(text);
+    if (_callback) {
+      _callback();
+    }
   }
 
   showDialogue(
@@ -31,6 +34,9 @@ export default class TextInterceptor {
   ): void {
     // Suppress console output during headless execution
     this.logs.push(name, text);
+    if (_callback) {
+      _callback();
+    }
   }
 
   getLatestMessage(): string {

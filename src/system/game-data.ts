@@ -18,6 +18,7 @@ import { getGameMode } from "#app/game-mode";
 import { GameModes } from "#enums/game-modes";
 import { BattleType } from "#enums/battle-type";
 import TrainerData from "#app/system/trainer-data";
+import { headless } from "#app/global-vars/headless";
 import { trainerConfigs } from "#app/data/trainers/trainer-config";
 import { resetSettings, setSetting, SettingKeys } from "#app/system/settings/settings";
 import { achvs } from "#app/system/achv";
@@ -1867,7 +1868,9 @@ export class GameData {
     // Only gain candies if the Pokemon has already been marked as caught in dex (ignore "rental" pokemon)
     const speciesRootForm = species.getRootSpeciesId();
     if (globalScene.gameData.dexData[speciesRootForm].caughtAttr) {
-      globalScene.candyBar.showStarterSpeciesCandy(species.speciesId, count);
+      if (!headless) {
+        globalScene.candyBar.showStarterSpeciesCandy(species.speciesId, count);
+      }
       this.starterData[species.speciesId].candyCount += count;
     }
   }
