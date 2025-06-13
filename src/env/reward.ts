@@ -34,7 +34,10 @@ export function getRewardComponents(
   const playerFainted = next.playerParty.filter((p, i) => p.hp <= 0 && prev.playerParty[i].hp > 0).length;
 
   return {
-    damageDealt: prevEnemyHp - nextEnemyHp,
+    damageDealt:
+      next.wave > prev.wave
+        ? prevEnemyHp
+        : prevEnemyHp - nextEnemyHp,
     hpHealed: Math.max(0, nextPlayerHp - prevPlayerHp),
     enemyFainted,
     playerFainted,
