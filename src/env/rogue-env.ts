@@ -263,7 +263,19 @@ export default class RogueEnv {
           } else if (action === RogueAction.BAG) {
             phase.handleCommand(Command.BALL, 0);
           } else if (action >= RogueAction.SWITCH_1 && action <= RogueAction.SWITCH_6) {
-            phase.handleCommand(Command.POKEMON, action - RogueAction.SWITCH_1);
+            const slot = action - RogueAction.SWITCH_1;
+            phase.handleCommand(Command.POKEMON, slot);
+            // immediately select the slot when the switch UI appears
+            this.scene.phaseManager.shiftPhase();
+            while (this.scene.phaseManager.hasQueuedShift()) {
+              this.scene.phaseManager.shiftPhase();
+            }
+            const switchPhase: any = this.scene.phaseManager.getCurrentPhase();
+            if (switchPhase?.constructor.name === "SwitchPhase") {
+              const handler: any = this.scene.ui.getHandler();
+              const cb = handler?.selectCallback as ((s: number, o: number) => void) | undefined;
+              cb?.(slot, 1);
+            }
           }
         } else if (phase?.constructor.name === "SelectTargetPhase") {
           const handler: any = this.scene.ui.getHandler();
