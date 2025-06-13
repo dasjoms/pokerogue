@@ -24,6 +24,7 @@ export function getRewardComponents(
 ) {
   const prevEnemyHp = prev.enemyParty.reduce((s, p) => s + p.hp, 0);
   const nextEnemyHp = next.enemyParty.reduce((s, p) => s + p.hp, 0);
+  const diff = prevEnemyHp - nextEnemyHp;
   const prevPlayerHp = prev.playerParty.reduce((s, p) => s + p.hp, 0);
   const nextPlayerHp = next.playerParty.reduce((s, p) => s + p.hp, 0);
 
@@ -35,9 +36,7 @@ export function getRewardComponents(
 
   return {
     damageDealt:
-      next.wave > prev.wave
-        ? prevEnemyHp
-        : prevEnemyHp - nextEnemyHp,
+      next.wave === prev.wave && diff > 0 ? diff : 0,
     hpHealed: Math.max(0, nextPlayerHp - prevPlayerHp),
     enemyFainted,
     playerFainted,

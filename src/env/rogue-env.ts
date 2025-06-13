@@ -405,7 +405,8 @@ export default class RogueEnv {
         action === RogueAction.RUN &&
         nextState.wave > prevState.wave
       ) {
-        computed -= DEFAULT_WEIGHTS.waveCleared;
+        const prevEnemyHp = prevState.enemyParty.reduce((s, p) => s + p.hp, 0);
+        computed -= prevEnemyHp * DEFAULT_WEIGHTS.damageDealt;
       }
       const stepReward = reward === undefined ? computed : reward;
 
