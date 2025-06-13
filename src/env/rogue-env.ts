@@ -21,6 +21,8 @@ import { initMoves } from "#app/data/moves/move";
 import { initPokemonForms } from "#app/data/pokemon-forms";
 import { initSpecies } from "#app/data/pokemon-species";
 import { initAbilities } from "#app/data/abilities/ability";
+import { TrainerSlot } from "#enums/trainer-slot";
+import { FieldPosition } from "#enums/field-position";
 import TextInterceptor from "#test/testUtils/TextInterceptor";
 
 export enum RogueAction {
@@ -123,7 +125,6 @@ export default class RogueEnv {
   /** Helper wrapper for injecting Phaser mocks. */
   private wrapper: GameWrapper;
 
-
   /** Optional logger for transition data. */
   public logger?: TransitionLogger;
 
@@ -191,13 +192,33 @@ export default class RogueEnv {
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
     this.scene.eggSkipPreference = 2;
-    initSceneWithoutEncounterPhase(this.scene, [
-      SpeciesId.SQUIRTLE,
-      SpeciesId.BULBASAUR,
-      SpeciesId.CHARMANDER,
-    ]);
+    initSceneWithoutEncounterPhase(this.scene, [SpeciesId.SQUIRTLE, SpeciesId.BULBASAUR, SpeciesId.CHARMANDER]);
     this.scene.phaseManager.clearAllPhases();
     this.scene.newBattle();
+    // Summon starters onto the field so moves have valid targets
+    this.scene.getPlayerField().forEach(p => {
+      this.scene.add.existing(p);
+      this.scene.field.add(p);
+      p.setFieldPosition(FieldPosition.CENTER);
+      p.fieldSetup(true);
+      p.showInfo();
+    });
+    if (this.scene.getEnemyField().length === 0) {
+      for (let i = 0; i < this.scene.currentBattle.getBattlerCount(); i++) {
+        const level = this.scene.currentBattle.getLevelForWave();
+        const species = this.scene.randomSpecies(this.scene.currentBattle.waveIndex, level, true);
+        const enemy = this.scene.addEnemyPokemon(species, level, TrainerSlot.NONE);
+        this.scene.currentBattle.enemyParty[i] = enemy;
+      }
+    }
+    this.scene.getEnemyField().forEach(e => {
+      this.scene.add.existing(e);
+      this.scene.field.add(e);
+      e.setFieldPosition(FieldPosition.CENTER);
+      e.fieldSetup(true);
+      e.showInfo();
+    });
+    this.scene.phaseManager.clearAllPhases();
     this.scene.currentBattle.incrementTurn();
     this.scene.phaseManager.pushNew("TurnInitPhase");
     this.scene.phaseManager.shiftPhase();
@@ -220,12 +241,7 @@ export default class RogueEnv {
    * appropriate in‑game command. A custom function may also be passed to
    * manipulate the underlying {@link BattleScene} directly.
    */
-  step(
-    action?: RogueAction | ((scene: BattleScene) => void),
-    reward?: number,
-    done = false,
-    fastForward = 1,
-  ): number {
+  step(action?: RogueAction | ((scene: BattleScene) => void), reward?: number, done = false, fastForward = 1): number {
     if (this.terminated) {
       return 0;
     }
@@ -265,11 +281,7 @@ export default class RogueEnv {
           const pokemon = phase.getPokemon?.() as any;
           if (action === RogueAction.LEARN_REJECT) {
             /* no-op */
-          } else if (
-            action >= RogueAction.LEARN_REPLACE_1 &&
-            action <= RogueAction.LEARN_REPLACE_4 &&
-            pokemon
-          ) {
+          } else if (action >= RogueAction.LEARN_REPLACE_1 && action <= RogueAction.LEARN_REPLACE_4 && pokemon) {
             const idx = action - RogueAction.LEARN_REPLACE_1;
             const moveId = (phase as any).moveId;
             pokemon.setMove(idx, moveId);
@@ -304,7 +316,10 @@ export default class RogueEnv {
           lapse?.hatchEggSilently?.(autoPhase.egg);
         }
         autoPhase.end?.();
-      } else if (autoPhase?.constructor?.name === "EvolutionPhase" || autoPhase?.constructor?.name === "FormChangePhase") {
+      } else if (
+        autoPhase?.constructor?.name === "EvolutionPhase" ||
+        autoPhase?.constructor?.name === "FormChangePhase"
+      ) {
         const pokemon = autoPhase.pokemon;
         const evolution = autoPhase.evolution;
         const lastLevel = autoPhase.lastLevel ?? 0;
@@ -319,11 +334,7 @@ export default class RogueEnv {
             .getLevelMoves(lastLevel + 1, true, false, false, situation)
             .filter((lm: any) => lm[0] === EVOLVE_MOVE);
           for (const lm of levelMoves) {
-            this.scene.phaseManager.unshiftNew(
-              "LearnMovePhase",
-              this.scene.getPlayerParty().indexOf(pokemon),
-              lm[1],
-            );
+            this.scene.phaseManager.unshiftNew("LearnMovePhase", this.scene.getPlayerParty().indexOf(pokemon), lm[1]);
           }
         }
         this.scene.phaseManager.unshiftNew("EndEvolutionPhase");
@@ -344,12 +355,7 @@ export default class RogueEnv {
         "SelectChallengePhase",
       ]);
       let safety = 0;
-      while (
-        phase &&
-        !(phase instanceof CommandPhase) &&
-        !needsInput.has(phase.constructor.name) &&
-        safety < 100
-      ) {
+      while (phase && !(phase instanceof CommandPhase) && !needsInput.has(phase.constructor.name) && safety < 100) {
         this.scene.phaseManager.shiftPhase();
         while (this.scene.phaseManager.hasQueuedShift()) {
           this.scene.phaseManager.shiftPhase();
@@ -359,10 +365,7 @@ export default class RogueEnv {
       }
 
       const nextState = this.getState();
-      if (
-        nextState.phase === "VictoryPhase" ||
-        nextState.phase === "GameOverPhase"
-      ) {
+      if (nextState.phase === "VictoryPhase" || nextState.phase === "GameOverPhase") {
         this.terminated = true;
       }
       const computed = computeStepReward(prevState, nextState);
@@ -374,9 +377,7 @@ export default class RogueEnv {
           action: typeof action === "number" ? action : -1,
           reward: stepReward,
           nextState,
-          done:
-            (done && i === fastForward - 1) ||
-            this.terminated,
+          done: (done && i === fastForward - 1) || this.terminated,
         };
         this.logger.log(record);
       }
@@ -480,12 +481,7 @@ export default class RogueEnv {
         RogueAction.UI_RIGHT,
       );
     } else if (phase?.constructor.name === "SelectBiomePhase") {
-      actions.push(
-        RogueAction.UI_ACTION,
-        RogueAction.UI_CANCEL,
-        RogueAction.UI_UP,
-        RogueAction.UI_DOWN,
-      );
+      actions.push(RogueAction.UI_ACTION, RogueAction.UI_CANCEL, RogueAction.UI_UP, RogueAction.UI_DOWN);
     }
     return actions;
   }
