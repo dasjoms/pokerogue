@@ -72,9 +72,10 @@ export class DamageAnimPhase extends PokemonPhase {
         repeat: 5,
         startAt: 200,
         callback: () => {
-          this.getPokemon()
-            .getSprite()
-            .setVisible(flashTimer.repeatCount % 2 === 0);
+          const sprite = this.getPokemon()?.getSprite?.();
+          if (sprite) {
+            sprite.setVisible(flashTimer.repeatCount % 2 === 0);
+          }
           if (!flashTimer.repeatCount) {
             this.getPokemon()
               .updateInfo()
