@@ -137,7 +137,10 @@ export default class RogueEnv {
   /** Base seed used to initialize each run. */
   private seed: string;
 
-  constructor(seed?: string) {
+  constructor(
+    seed?: string,
+    private startingMoney = 0,
+  ) {
     this.seed = seed ?? randomString(24);
     // Minimal data initialization mimicking the test setup
     initAbilities();
@@ -188,6 +191,7 @@ export default class RogueEnv {
     this.terminated = false;
     this.seed = seed;
     this.scene.reset(false, true);
+    this.scene.money = this.startingMoney;
     this.scene.setSeed(this.seed);
     this.scene.resetSeed();
     this.scene.enableTutorials = false;
@@ -400,13 +404,12 @@ export default class RogueEnv {
         this.terminated = true;
       }
       let computed = computeStepReward(prevState, nextState);
-      if (
-        typeof action === "number" &&
-        action === RogueAction.RUN &&
-        nextState.wave > prevState.wave
-      ) {
+      if (typeof action === "number" && action === RogueAction.RUN && nextState.wave > prevState.wave) {
         const prevEnemyHp = prevState.enemyParty.reduce((s, p) => s + p.hp, 0);
         computed -= prevEnemyHp * DEFAULT_WEIGHTS.damageDealt;
+      }
+      if (nextState.wave > prevState.wave) {
+        this.scene.addMoney(this.scene.getWaveMoneyAmount(1));
       }
       const stepReward = reward === undefined ? computed : reward;
 
