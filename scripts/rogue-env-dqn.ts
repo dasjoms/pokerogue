@@ -10,16 +10,39 @@ function flattenState(state: SerializedState): number[] {
     if (idx === undefined || idx < 0 || idx >= party.length) return undefined;
     return party[idx];
   };
+
   const player = getMon(state.playerParty, state.playerActive);
   const enemy = getMon(state.enemyParty, state.enemyActive);
   const playerHp = player ? player.hp / player.maxHp : 0;
   const enemyHp = enemy ? enemy.hp / enemy.maxHp : 0;
   const playerLevel = player?.level ?? 0;
   const enemyLevel = enemy?.level ?? 0;
-  return [state.turn, state.wave, playerHp, enemyHp, playerLevel, enemyLevel];
+
+  const isShop = state.phase === "SelectModifierPhase" ? 1 : 0;
+  const money = (state.money ?? 0) / 1000;
+  const shopCosts = (state.shopOptions ?? [])
+    .slice(0, 3)
+    .map(o => o.cost / 1000);
+  while (shopCosts.length < 3) shopCosts.push(0);
+  const cursor = (state.shopCursor ?? 0) / 10;
+  const rowCursor = (state.shopRowCursor ?? 0) / 10;
+
+  return [
+    state.turn,
+    state.wave,
+    playerHp,
+    enemyHp,
+    playerLevel,
+    enemyLevel,
+    isShop,
+    money,
+    ...shopCosts,
+    cursor,
+    rowCursor,
+  ];
 }
 
-const INPUT_SIZE = 6;
+const INPUT_SIZE = 13;
 const ACTION_COUNT = 42; // total actions in RogueAction enum
 
 class DQNAgent {
