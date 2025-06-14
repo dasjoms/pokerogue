@@ -611,6 +611,10 @@ export default class ModifierSelectUiHandler extends AwaitableUiHandler {
     return false;
   }
 
+  getRowCursor(): number {
+    return this.rowCursor;
+  }
+
   private getRowItems(rowCursor: number): number {
     switch (rowCursor) {
       case 0:

@@ -409,7 +409,7 @@ export default class RogueEnv {
         computed -= prevEnemyHp * DEFAULT_WEIGHTS.damageDealt;
       }
       if (prevState.phase === "SelectModifierPhase" && nextState.money < prevState.money) {
-        computed += 5;
+        computed += 10;
       }
       if (nextState.wave > prevState.wave && !(typeof action === "number" && action === RogueAction.RUN)) {
         this.scene.addMoney(this.scene.getWaveMoneyAmount(nextState.wave - prevState.wave));
