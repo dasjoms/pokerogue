@@ -96,6 +96,13 @@ VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 50 500 my-model my-log.json.gz
 Environment variables `ROGUE_EPISODES`, `ROGUE_MAX_STEPS`, `ROGUE_MODEL_PATH` and `ROGUE_LOG_PATH` may be used instead of arguments.
 If the log filename ends with `.gz` it will be gzip compressed.
 
+When stopping training manually, send `SIGINT` to the entire process group so the
+interrupt handler can save the model and log:
+
+```bash
+kill -SIGINT -<pgid>
+```
+
 
 
 ## 🪧 To Do
