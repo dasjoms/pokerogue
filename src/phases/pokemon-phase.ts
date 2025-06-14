@@ -11,14 +11,14 @@ export abstract class PokemonPhase extends FieldPhase {
   constructor(battlerIndex?: BattlerIndex | number) {
     super();
 
+    battlerIndex =
+      battlerIndex ??
+      globalScene
+        .getField()
+        .find(p => p?.isActive())! // TODO: is the bang correct here?
+        .getBattlerIndex();
     if (battlerIndex === undefined) {
-      const defaultPokemon = globalScene.getField().find(p => p?.isActive());
-      if (defaultPokemon) {
-        battlerIndex = defaultPokemon.getBattlerIndex();
-      } else {
-        console.warn("There are no Pokemon on the field!");
-        battlerIndex = BattlerIndex.PLAYER;
-      }
+      console.warn("There are no Pokemon on the field!"); // TODO: figure out a suitable fallback behavior
     }
 
     this.battlerIndex = battlerIndex;
