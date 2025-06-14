@@ -11,7 +11,13 @@ export class PostSummonPhase extends PokemonPhase {
   start() {
     super.start();
 
-    const pokemon = this.getPokemon();
+    const pokemon = this.getPokemon() as any;
+    if (!pokemon) {
+      if (globalScene.getPokemonAllowedInBattle().length === 0) {
+        globalScene.phaseManager.unshiftNew("GameOverPhase");
+      }
+      return this.end();
+    }
 
     if (pokemon.status?.effect === StatusEffect.TOXIC) {
       pokemon.status.toxicTurnCount = 0;
