@@ -12,6 +12,10 @@ export class PostSummonPhase extends PokemonPhase {
     super.start();
 
     const pokemon = this.getPokemon();
+    if (!pokemon) {
+      this.end();
+      return;
+    }
 
     if (pokemon.status?.effect === StatusEffect.TOXIC) {
       pokemon.status.toxicTurnCount = 0;

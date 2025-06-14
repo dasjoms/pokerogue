@@ -26,7 +26,11 @@ export class PostTurnStatusEffectPhase extends PokemonPhase {
 
   start() {
     const pokemon = this.getPokemon();
-    if (pokemon?.isActive(true) && pokemon.status && pokemon.status.isPostTurn() && !pokemon.switchOutStatus) {
+    if (!pokemon) {
+      this.end();
+      return;
+    }
+    if (pokemon.isActive(true) && pokemon.status && pokemon.status.isPostTurn() && !pokemon.switchOutStatus) {
       pokemon.status.incrementTurn();
       const cancelled = new BooleanHolder(false);
       applyAbAttrs(BlockNonDirectDamageAbAttr, pokemon, cancelled);
@@ -65,8 +69,9 @@ export class PostTurnStatusEffectPhase extends PokemonPhase {
   }
 
   override end() {
-    if (globalScene.currentBattle.battleSpec === BattleSpec.FINAL_BOSS) {
-      globalScene.initFinalBossPhaseTwo(this.getPokemon());
+    const pokemon = this.getPokemon();
+    if (pokemon && globalScene.currentBattle.battleSpec === BattleSpec.FINAL_BOSS) {
+      globalScene.initFinalBossPhaseTwo(pokemon);
     } else {
       super.end();
     }
