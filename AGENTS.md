@@ -43,4 +43,4 @@ Do not run other project commands until the verification script exits successful
 
 ## Tests
 
-The current state of the repository requires you to run 'ROGUE_SEED=4 VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 3 10 model-5 log-5.json' to run the neural network training script. You will have to manually stop it after around 15 seconds as it does not exit automatically. Whenever you add new features or make modifications you are to run the training script with the provided command and deeply analyze the generated "log-5.json" file to verify your changes are taking the desired effect on training.
+The current state of the repository requires you to run 'ROGUE_SEED=4 VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts YOUR_EPISODE_COUNT STEPS_PER_EPISODE model-5 log-5.json' to run the neural network training script. You will have to manually stop it after around 15 seconds as it does not exit automatically. Whenever you add new features or make modifications you are to run the training script with the provided command and deeply analyze the generated "log-5.json" file to verify your changes are taking the desired effect on training.
