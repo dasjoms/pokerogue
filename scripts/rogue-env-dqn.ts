@@ -155,16 +155,6 @@ class DQNAgent {
     let state = flattenState(env.getState());
     for (let t = 0; t < maxSteps && !env.terminated && !interrupted; t++) {
       const available = env.getAvailableActions();
-      if (available.length === 0) {
-        const snapshot = env.getState();
-        const usable = snapshot.playerParty.some(p => p.hp > 0);
-        if (!usable) {
-          break;
-        }
-        env.step();
-        state = flattenState(env.getState());
-        continue;
-      }
       const action = agent.act(state, available);
       const reward = env.step(action as RogueAction);
       const nextState = flattenState(env.getState());
