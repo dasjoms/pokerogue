@@ -47,3 +47,8 @@ training transitions are saved (gzip compressed if the filename ends with `.gz`)
 Agents should observe the available actions with `getAvailableActions()` and
 choose one at each step. Rewards can be accumulated to learn optimal strategies.
 See `scripts/rogue-env-dqn.ts` for a minimal training loop.
+
+When the current phase is the modifier shop the environment exposes special
+`SHOP_i_SLOT_j` actions. Each combination instantly purchases shop item `i`
+and applies it to party slot `j`, bypassing the usual UI navigation. The enum
+contains entries for up to seven shop items and six party slots.

@@ -3,7 +3,7 @@ import BattleScene from "#app/battle-scene";
 import { Command } from "#enums/command";
 import { Button } from "#enums/buttons";
 import { CommandPhase } from "#app/phases/command-phase";
-import { randomString } from "#app/utils/common";
+import { randomString, NumberHolder } from "#app/utils/common";
 import serializeState, { type SerializedState } from "#app/utils/serialize";
 import type TransitionLogger from "#env/transition-logger";
 import type { TransitionRecord } from "#env/transition-logger";
@@ -11,7 +11,11 @@ import { computeStepReward, DEFAULT_WEIGHTS } from "#env/reward";
 import GameWrapper from "#test/testUtils/gameWrapper";
 import { initSceneWithoutEncounterPhase } from "#test/testUtils/gameManagerUtils";
 import { SpeciesId } from "#enums/species-id";
-import { TerastallizeAccessModifier } from "#app/modifier/modifier";
+import {
+  TerastallizeAccessModifier,
+  HealShopCostModifier,
+} from "#app/modifier/modifier";
+import { getPlayerShopModifierTypeOptionsForWave } from "#app/modifier/modifier-type";
 import { LearnMoveSituation } from "#enums/learn-move-situation";
 import { EVOLVE_MOVE } from "#app/data/balance/pokemon-level-moves";
 import { initBiomes } from "#app/data/balance/biomes";
@@ -24,6 +28,7 @@ import { initAbilities } from "#app/data/abilities/ability";
 import { TrainerSlot } from "#enums/trainer-slot";
 import { FieldPosition } from "#enums/field-position";
 import TextInterceptor from "#test/testUtils/TextInterceptor";
+import Overrides from "#app/overrides";
 
 export enum RogueAction {
   /** Use the first move in the active Pokémon's moveset. */
@@ -110,7 +115,59 @@ export enum RogueAction {
   LEARN_REPLACE_3 = 40,
   /** Replace the fourth move when learning a new one. */
   LEARN_REPLACE_4 = 41,
+  /** Buy shop item 1 and apply to party slot 1. */
+  SHOP_1_SLOT_1 = 42,
+  SHOP_1_SLOT_2,
+  SHOP_1_SLOT_3,
+  SHOP_1_SLOT_4,
+  SHOP_1_SLOT_5,
+  SHOP_1_SLOT_6,
+  /** Buy shop item 2 and apply to a party slot. */
+  SHOP_2_SLOT_1,
+  SHOP_2_SLOT_2,
+  SHOP_2_SLOT_3,
+  SHOP_2_SLOT_4,
+  SHOP_2_SLOT_5,
+  SHOP_2_SLOT_6,
+  /** Buy shop item 3 and apply to a party slot. */
+  SHOP_3_SLOT_1,
+  SHOP_3_SLOT_2,
+  SHOP_3_SLOT_3,
+  SHOP_3_SLOT_4,
+  SHOP_3_SLOT_5,
+  SHOP_3_SLOT_6,
+  /** Buy shop item 4 and apply to a party slot. */
+  SHOP_4_SLOT_1,
+  SHOP_4_SLOT_2,
+  SHOP_4_SLOT_3,
+  SHOP_4_SLOT_4,
+  SHOP_4_SLOT_5,
+  SHOP_4_SLOT_6,
+  /** Buy shop item 5 and apply to a party slot. */
+  SHOP_5_SLOT_1,
+  SHOP_5_SLOT_2,
+  SHOP_5_SLOT_3,
+  SHOP_5_SLOT_4,
+  SHOP_5_SLOT_5,
+  SHOP_5_SLOT_6,
+  /** Buy shop item 6 and apply to a party slot. */
+  SHOP_6_SLOT_1,
+  SHOP_6_SLOT_2,
+  SHOP_6_SLOT_3,
+  SHOP_6_SLOT_4,
+  SHOP_6_SLOT_5,
+  SHOP_6_SLOT_6,
+  /** Buy shop item 7 and apply to a party slot. */
+  SHOP_7_SLOT_1,
+  SHOP_7_SLOT_2,
+  SHOP_7_SLOT_3,
+  SHOP_7_SLOT_4,
+  SHOP_7_SLOT_5,
+  SHOP_7_SLOT_6,
 }
+
+/** Total number of distinct shop purchase actions. */
+export const SHOP_ACTION_COUNT = 7 * 6;
 
 /**
  * Headless environment for automated gameplay without UI.
@@ -272,7 +329,48 @@ export default class RogueEnv {
 
       if (typeof action === "number") {
         const phase: any = this.scene.phaseManager.getCurrentPhase();
-        if (phase?.handleCommand) {
+        if (phase?.constructor.name === "SelectModifierPhase") {
+          const idx = action - RogueAction.SHOP_1_SLOT_1;
+          if (idx >= 0 && idx < SHOP_ACTION_COUNT) {
+            const itemIndex = Math.floor(idx / 6);
+            const partyIndex = idx % 6;
+            const holder = new NumberHolder(this.scene.getWaveMoneyAmount(1));
+            this.scene.applyModifier(HealShopCostModifier, true, holder);
+            const shop = getPlayerShopModifierTypeOptionsForWave(
+              this.scene.currentBattle.waveIndex,
+              holder.value,
+            );
+            const option = shop[itemIndex];
+            const party = this.scene.getPlayerParty();
+            const target = party[partyIndex];
+            if (option && target && target.hp > 0) {
+              const costHolder = new NumberHolder(option.cost);
+              this.scene.applyModifier(HealShopCostModifier, true, costHolder);
+              const cost = costHolder.value;
+              if (this.scene.money >= cost || Overrides.WAIVE_ROLL_FEE_OVERRIDE) {
+                const mod = option.type.newModifier(target);
+                this.scene.addModifier(mod!, false, true, undefined, undefined, cost);
+                if (cost && !Overrides.WAIVE_ROLL_FEE_OVERRIDE) {
+                  this.scene.money -= cost;
+                }
+              }
+            }
+          } else {
+            const handler: any = this.scene.ui.getHandler();
+            const buttonMap: Record<RogueAction, Button> = {
+              [RogueAction.UI_ACTION]: Button.ACTION,
+              [RogueAction.UI_CANCEL]: Button.CANCEL,
+              [RogueAction.UI_UP]: Button.UP,
+              [RogueAction.UI_DOWN]: Button.DOWN,
+              [RogueAction.UI_LEFT]: Button.LEFT,
+              [RogueAction.UI_RIGHT]: Button.RIGHT,
+            } as const;
+            const button = buttonMap[action as RogueAction];
+            if (button !== undefined && handler?.processInput instanceof Function) {
+              handler.processInput(button);
+            }
+          }
+        } else if (phase?.handleCommand) {
           if (action <= RogueAction.FIGHT_4) {
             phase.handleCommand(Command.FIGHT, action);
           } else if (action >= RogueAction.TERA_1 && action <= RogueAction.TERA_4) {
@@ -320,7 +418,6 @@ export default class RogueEnv {
             pokemon.setMove(idx, moveId);
           }
         } else if (
-          phase?.constructor.name === "SelectModifierPhase" ||
           phase?.constructor.name === "SelectBiomePhase" ||
           phase?.constructor.name === "SelectChallengePhase"
         ) {
@@ -379,7 +476,7 @@ export default class RogueEnv {
         this.scene.phaseManager.shiftPhase();
       }
       this.flushTimers();
-      let phase = this.scene.phaseManager.getCurrentPhase();
+      let currentPhase = this.scene.phaseManager.getCurrentPhase();
       const needsInput = new Set([
         "SwitchPhase",
         "SelectTargetPhase",
@@ -389,13 +486,13 @@ export default class RogueEnv {
         "SelectChallengePhase",
       ]);
       let safety = 0;
-      while (phase && !(phase instanceof CommandPhase) && !needsInput.has(phase.constructor.name) && safety < 100) {
+      while (currentPhase && !(currentPhase instanceof CommandPhase) && !needsInput.has(currentPhase.constructor.name) && safety < 100) {
         this.scene.phaseManager.shiftPhase();
         while (this.scene.phaseManager.hasQueuedShift()) {
           this.scene.phaseManager.shiftPhase();
         }
         this.flushTimers();
-        phase = this.scene.phaseManager.getCurrentPhase();
+        currentPhase = this.scene.phaseManager.getCurrentPhase();
         safety++;
       }
 
@@ -515,9 +612,25 @@ export default class RogueEnv {
           RogueAction.LEARN_REPLACE_4,
         );
       }
+    } else if (phase?.constructor.name === "SelectModifierPhase") {
+      const holder = new NumberHolder(this.scene.getWaveMoneyAmount(1));
+      this.scene.applyModifier(HealShopCostModifier, true, holder);
+      const shop = getPlayerShopModifierTypeOptionsForWave(
+        this.scene.currentBattle.waveIndex,
+        holder.value,
+      );
+      const party = this.scene.getPlayerParty();
+      for (let i = 0; i < shop.length; i++) {
+        for (let p = 0; p < Math.min(6, party.length); p++) {
+          if (party[p].hp > 0) {
+            actions.push((RogueAction.SHOP_1_SLOT_1 + i * 6 + p) as RogueAction);
+          }
+        }
+      }
+      actions.push(RogueAction.UI_CANCEL);
     } else if (
-      phase?.constructor.name === "SelectModifierPhase" ||
-      phase?.constructor.name === "SelectChallengePhase"
+      phase?.constructor.name === "SelectChallengePhase" ||
+      phase?.constructor.name === "SelectBiomePhase"
     ) {
       actions.push(
         RogueAction.UI_ACTION,
@@ -527,8 +640,6 @@ export default class RogueEnv {
         RogueAction.UI_LEFT,
         RogueAction.UI_RIGHT,
       );
-    } else if (phase?.constructor.name === "SelectBiomePhase") {
-      actions.push(RogueAction.UI_ACTION, RogueAction.UI_CANCEL, RogueAction.UI_UP, RogueAction.UI_DOWN);
     }
     return actions;
   }
