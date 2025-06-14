@@ -167,8 +167,9 @@ class DQNAgent {
 
   if (!interrupted) {
     await saveProgress();
+    process.exit(0);
   }
-  }
+}
 
 const episodes = Number.parseInt(process.argv[2] ?? process.env.ROGUE_EPISODES ?? "10", 10);
 const maxSteps = Number.parseInt(process.argv[3] ?? process.env.ROGUE_MAX_STEPS ?? "200", 10);
