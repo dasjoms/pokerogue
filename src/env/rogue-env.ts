@@ -300,7 +300,7 @@ export default class RogueEnv {
    * Flush pending timed events so asynchronous phase callbacks execute
    * before the next state snapshot is taken.
    */
-  private flushTimers(iterations = 10): void {
+  private flushTimers(iterations = 5): void {
     const clock: any = this.scene.time as any;
     for (let i = 0; i < iterations; i++) {
       clock.preUpdate(clock.systems.game.loop.time, 1);
