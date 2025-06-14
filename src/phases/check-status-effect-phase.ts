@@ -13,7 +13,8 @@ export class CheckStatusEffectPhase extends Phase {
   start() {
     const field = globalScene.getField();
     for (const o of this.order) {
-      if (field[o].status?.isPostTurn()) {
+      const pokemon = field[o];
+      if (pokemon && pokemon.status?.isPostTurn()) {
         globalScene.phaseManager.unshiftNew("PostTurnStatusEffectPhase", o);
       }
     }
