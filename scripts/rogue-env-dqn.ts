@@ -161,7 +161,11 @@ class DQNAgent {
       agent.remember(state, action, reward, nextState, env.terminated);
       state = nextState;
       await agent.replay();
+      if ((t + 1) % 10 === 0) {
+        await saveProgress();
+      }
     }
+    await saveProgress();
     console.log(`Episode ${ep + 1} complete`);
   }
 

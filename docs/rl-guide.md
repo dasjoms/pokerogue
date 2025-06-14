@@ -33,6 +33,13 @@ VITE_HEADLESS=1 npx tsx scripts/rogue-env-dqn.ts 50 500 my-model my-log.json.gz
 Environment variables `ROGUE_EPISODES`, `ROGUE_MAX_STEPS`, `ROGUE_MODEL_PATH` and
 `ROGUE_LOG_PATH` may also be provided.
 
+When terminating training manually, send `SIGINT` to the entire process group so
+the interrupt handler can persist the model and log. On Linux you can use:
+
+```bash
+kill -SIGINT -<pgid>
+```
+
 The model directory defaults to `dqn-model`. When a log path is supplied the
 training transitions are saved (gzip compressed if the filename ends with `.gz`).
 
