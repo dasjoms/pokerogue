@@ -24,9 +24,6 @@ function flattenState(state: SerializedState): number[] {
     .slice(0, 3)
     .map(o => o.cost / 1000);
   while (shopCosts.length < 3) shopCosts.push(0);
-  const cursor = (state.shopCursor ?? 0) / 10;
-  const rowCursor = (state.shopRowCursor ?? 0) / 10;
-
   return [
     state.turn,
     state.wave,
@@ -37,13 +34,11 @@ function flattenState(state: SerializedState): number[] {
     isShop,
     money,
     ...shopCosts,
-    cursor,
-    rowCursor,
   ];
 }
 
-const INPUT_SIZE = 13;
-const ACTION_COUNT = 42; // total actions in RogueAction enum
+const INPUT_SIZE = 11;
+const ACTION_COUNT = 84; // total actions in RogueAction enum
 
 class DQNAgent {
   private model: LayersModel;

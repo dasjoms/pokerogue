@@ -80,10 +80,6 @@ export interface SerializedState {
   enemyModifiers: { id: string; stack: number }[];
   /** Current shop options when available. */
   shopOptions?: { id: string; cost: number }[];
-  /** Cursor index within the current shop row when available. */
-  shopCursor?: number;
-  /** Selected shop row index when available. */
-  shopRowCursor?: number;
 }
 
 function serializePokemon(p: Pokemon): SerializedPokemon {
@@ -112,16 +108,11 @@ function serializePokemon(p: Pokemon): SerializedPokemon {
 export default function serializeState(scene: BattleScene): SerializedState {
   const phaseName = scene.phaseManager.getCurrentPhase()?.constructor.name;
   let shopOptions: { id: string; cost: number }[] | undefined;
-  let shopCursor: number | undefined;
-  let shopRowCursor: number | undefined;
   if (phaseName === "SelectModifierPhase" && !scene.gameMode.hasNoShop) {
     const baseCost = scene.getWaveMoneyAmount(1);
     const holder = new NumberHolder(baseCost);
     scene.applyModifier(HealShopCostModifier, true, holder);
     shopOptions = getPlayerShopModifierTypeOptionsForWave(scene.currentBattle.waveIndex, holder.value).map(o => ({ id: o.type.id, cost: o.cost }));
-    const handler = scene.ui.getHandler<ModifierSelectUiHandler>();
-    shopCursor = handler.getCursor();
-    shopRowCursor = handler.getRowCursor();
   }
   return {
     schemaVersion: STATE_SCHEMA_VERSION,
@@ -150,7 +141,5 @@ export default function serializeState(scene: BattleScene): SerializedState {
     playerModifiers: scene.modifiers.map(m => ({ id: m.type.id, stack: m.stackCount })),
     enemyModifiers: scene.enemyModifiers.map(m => ({ id: m.type.id, stack: m.stackCount })),
     shopOptions,
-    shopCursor,
-    shopRowCursor,
   };
 }
